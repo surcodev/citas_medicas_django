@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+<style>
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .card-link .card {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .card-link:hover .card {
+        background-color: #f1f3f3 !important;
+        transform: scale(1.03);
+        color: #1c536d;
+    }
+</style>
+
+<div class="container text-center" style="padding-top: 30px;">
+    <div style="font-weight: bold; font-size: 24px; margin-bottom: 30px;">
+        TUPAC AMARU
+    </div>
+
+    <div class="row justify-content-center">
+        
+        <!-- Tupac Amaru -->
+        <div class="col-12 col-md-3 mb-4">
+            <div style="font-weight: bold; font-size: 18px; color: #000; margin-bottom: 10px;">
+                Periodo (2020-2023)
+            </div>
+            <a href="{% url 'centro_costos:lista_gastos' %}" class="card-link">
+                <div class="card h-100 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/centro_costos/gastos3.png' %}" alt="Gastos"
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Canta Callao -->
+        <div class="col-12 col-md-3 mb-4">
+            <div style="font-weight: bold; font-size: 18px; color: #2e3440; margin-bottom: 10px;">
+                Periodo (2024-{% now "Y" %})
+            </div>
+            <a href="{% url 'centro_costos:lista_gastoN1' %}" class="card-link">
+                <div class="card h-100 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/centro_costos/gastos3.png' %}" alt="Gastos"
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    <!---------------------------------------------------------------------------------------------------------------------------------------------->
+    
+
+    </div>
+
+    
+</div>
+
+{% endblock %}

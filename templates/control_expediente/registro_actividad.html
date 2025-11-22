@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %} Registro de actividades {% endblock %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+<style>
+    .form-control {
+        border-radius: 0.5rem;
+        height: 38px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+    }
+
+    .modal-content {
+        border-radius: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #d8dee9 !important;
+        box-shadow: 0 0 0 0.2rem rgb(226, 242, 242);
+    }
+
+    .ver-pdf-btn:hover {
+        text-decoration: underline !important;
+    }
+
+    .fila-seleccionada {
+        background-color: #d8dee9 !important;
+    }
+    
+</style>
+
+
+<div style="text-align: center; margin-top: 20px;">
+    <div style="font-weight: bold; font-size: 24px; color: #3b4252;">
+        REGISTRO DE ACTIVIDADES
+    </div>
+</div>
+
+<div class="container mt-2" style="max-width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <!-- Sección de búsqueda -->
+<h5 class="mb-2">Filtros de búsqueda</h5>
+<div class="row mb-3">
+    <!-- Fecha Desde -->
+    <div class="col">
+        <label class="form-label">Desde</label>
+        <input type="date" class="form-control" id="fechaDesde">
+    </div>
+
+    <!-- Fecha Hasta -->
+    <div class="col">
+        <label class="form-label">Hasta</label>
+        <input type="date" class="form-control" id="fechaHasta">
+    </div>
+
+    <!-- Nombre -->
+    <div class="col">
+    <label class="form-label">Nombre</label>
+    <select class="form-select filter-input" data-column="1">
+        <option value="">Todos</option>
+        {% for usuario in usuarios_legales %}
+        <option value="{{ usuario.first_name }} {{ usuario.last_name }}">
+            {{ usuario.first_name }} {{ usuario.last_name }}
+        </option>
+        {% endfor %}
+    </select>
+    </div>
+
+
+    <!-- Actividad -->
+    <div class="col">
+        <label class="form-label">Actividad</label>
+        <input type="text" class="form-control filter-input" data-column="2">
+    </div>
+
+    <!-- Botón Limpiar Filtros -->
+    <div class="col">
+        <label class="form-label" style="color: #ffffff;">Limpiar</label>
+        <a href="{% url 'control_expediente:lista_registros_actividad' %}" id="clearFilters"
+            class="form-control btn btn-secondary text-center"
+            style="background-color: {% if request.user.role == 3 %}#BF0909{% elif request.user.role == 2 %}#0995AD{% else %}#3b4252{% endif %}; border: none; line-height: 25px;">
+            Limpiar Filtros
+        </a>
+    </div>
+</div>
+
+
+                    <hr>
+
+                    <!-- Tabla -->
+                    <div class="table-container" style="max-height: 55vh; overflow-y: auto; overflow-x: auto;">
+                        <table class="table table-hover" id="documentsTable">
+                            <thead class="" style="position: sticky; top: 0; z-index: 1;">
+                                <tr style="background-color: #000;">
+                                    <th style="color: white;">FECHA</th>
+                                    <th style="color: white;">NOMBRE</th>
+                                    <th style="color: white;">ACTIVIDAD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+    {% for cj in registro_actividad %}
+    <tr>
+        <td>{{ cj.fecha|date:"d/m/Y h:i:s A" }}</td>
+        <td>{{ cj.nombre }}</td>
+        <td>{{ cj.actividad }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+
+                        </table>
+                    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tabla = document.getElementById("documentsTable");
+    if (!tabla) return;
+
+    const filas = tabla.querySelectorAll("tbody tr");
+
+    const fechaDesdeInput = document.getElementById("fechaDesde");
+    const fechaHastaInput = document.getElementById("fechaHasta");
+    const selectNombre = document.querySelector('select[data-column="1"]'); // 👈 Cambiado
+    const inputActividad = document.querySelector('input[data-column="2"]');
+
+    // Escuchar cambios
+    if (fechaDesdeInput) fechaDesdeInput.addEventListener("input", aplicarFiltros);
+    if (fechaHastaInput) fechaHastaInput.addEventListener("input", aplicarFiltros);
+    if (selectNombre) selectNombre.addEventListener("change", aplicarFiltros); // 👈 change en lugar de input
+    if (inputActividad) inputActividad.addEventListener("input", aplicarFiltros);
+
+    function aplicarFiltros() {
+        const desde = fechaDesdeInput ? fechaDesdeInput.value : "";
+        const hasta = fechaHastaInput ? fechaHastaInput.value : "";
+        const filtroNombre = selectNombre ? selectNombre.value.toLowerCase().trim() : "";
+        const filtroActividad = inputActividad ? inputActividad.value.toLowerCase().trim() : "";
+
+        filas.forEach(fila => {
+            const celdas = fila.querySelectorAll("td");
+
+            const textoFecha = celdas[0]?.textContent.trim() || "";
+            const textoNombre = celdas[1]?.textContent.trim().toLowerCase() || "";
+            const textoActividad = celdas[2]?.textContent.trim().toLowerCase() || "";
+
+            // Convertir fecha (dd/mm/yyyy)
+            const partes = textoFecha.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+            const fechaFormateada = partes ? `${partes[3]}-${partes[2]}-${partes[1]}` : null;
+
+            let mostrar = true;
+
+            if (fechaFormateada) {
+                if (desde && fechaFormateada < desde) mostrar = false;
+                if (hasta && fechaFormateada > hasta) mostrar = false;
+            }
+
+            if (filtroNombre && !textoNombre.includes(filtroNombre)) mostrar = false;
+            if (filtroActividad && !textoActividad.includes(filtroActividad)) mostrar = false;
+
+            fila.style.display = mostrar ? "" : "none";
+        });
+    }
+});
+</script>
+
+
+
+                    {% endblock %}

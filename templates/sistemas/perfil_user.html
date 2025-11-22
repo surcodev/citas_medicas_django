@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mi Perfil{% endblock %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Selecciona el contenedor que incluye todo
+    const group = document.querySelector('.input-group');
+    if (group) {
+        // Oculta los textos y elementos no deseados
+        const toHide = group.querySelectorAll('a, input[type="checkbox"], label[for*="clear"], br');
+        toHide.forEach(el => el.style.display = 'none');
+        
+        // Opcional: también puedes eliminar el texto "Currently:" y "Change:"
+        group.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE && (node.textContent.includes('Currently') || node.textContent.includes('Change'))) {
+                node.textContent = '';
+            }
+        });
+    }
+});
+</script>
+
+
+<div class="container" style="margin-top: 100px;">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-5">
+            <h2 class="fw-bold mb-4 text-center border-bottom pb-2">
+                <i class="bi bi-person-circle me-2"></i> Mi Perfil
+            </h2>
+
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Foto de perfil -->
+                <div class="d-flex align-items-center mb-4">
+                    {% if user.foto_perfil %} 
+                        <img src="{{ user.foto_perfil.url }}" 
+                            alt="Foto de perfil" 
+                            class="shadow-sm"
+                            style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #e0e0e0;">
+                    {% else %}
+                        <img src="{% static 'images/login.png' %}" 
+                             alt="Foto por defecto" 
+                             style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid #e0e0e0;"
+                             class="me-4 shadow-sm">
+                    {% endif %}
+
+                    <div>
+                        <div class="input-group" style="max-width: 300px;">
+                            {{ form.foto_perfil }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos del usuario -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold ">NOMBRE</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">APELLIDO</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">CORREO ELECTRÓNICO</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">TELÉFONO</label>
+                        {{ form.phone_number }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">DNI</label>
+                        {{ form.dni }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">ÁREA</label>
+                        {{ form.role }}
+                    </div>
+                </div>
+
+                <!-- Botón de guardar -->
+                <div class="d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn text-white px-4 py-2 fw-semibold shadow-sm bg-dark">
+                        <i class="bi bi-save me-1"></i> Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
