@@ -26,6 +26,7 @@ urlpatterns = [
     path('', include('canta_callao.urls')),
     path('productivity/', include('productividad.urls')),
     path('asistencia/', include('asistencia.urls')),
+    path('clinica/', include('clinica.urls')),
     path('ia/', views.int_art, name='int_art'),
     path('perfil_user/', views.perfil_user, name='perfil_user'),
     

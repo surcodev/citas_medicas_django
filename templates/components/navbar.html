@@ -85,10 +85,10 @@
             <a href="{% url 'home' %}">Inicio</a>
         </li>
         <li>
-            <a href="{% url 'perfil_user' %}">Perfil</a>
+            <a href="{% url 'clinica:lista_pacientes' %}">Pacientes</a>
         </li>
         <li>
-            <a href="{% url 'lista_pacientes' %}">Citas médicas</a>
+            <a href="{% url 'clinica:lista_citas' %}">Citas Médicas</a>
         </li>
         <li>
             <a href="{% url 'productivity:calendar' %}">Calendario</a>
@@ -107,7 +107,7 @@
                 <a href="{% url 'tramites:lista_tramite' %}">Trámites</a>
             </li>
             <li>
-                <a href="{% url 'lista_pacientes' %}">Partidas</a>
+                <a href="{% url 'clinica:lista_pacientes' %}">Partidas</a>
             </li>
             <li>
                 <a href="{% url 'centro_costos:home' %}">Costos</a>
@@ -144,8 +144,6 @@
         <div class="dropdown">
             <a href="{% url 'perfil_user' %}" class="profile">Mi Perfil</a>
             <a href="{% url 'asistencia:home' %}" class="profile">Mis Asistencias</a>
-            <a href="https://docs.google.com/spreadsheets/d/1IWok_E1wHzkX9Qldz2nDcDuejut5bhmi3zUhybxxDYI/edit?gid=0#gid=0" class="profile d-none" onclick="mostrarAlerta(event)" target="_blank">Caja Chica</a>
-            <a href="{% url 'int_art' %}" class="profile">IA</a>
             <!-- Botón cerrar sesión con apariencia de enlace -->
             <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:none;">
                 {% csrf_token %}
@@ -178,7 +176,7 @@
                 Registros</a>
         </li>
         <li>
-            <a href="{% url 'lista_pacientes' %}">Partidas</a>
+            <a href="{% url 'clinica:lista_pacientes' %}">Partidas</a>
         </li>
         <li>
             <a href="#">Planos</a>
