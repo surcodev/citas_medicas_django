@@ -68,7 +68,7 @@ def reset_password_validate(request, uidb64, token):
         return redirect('reset_password')
     else:
         messages.error(request, 'This link has been expired!')
-        return redirect('home')
+        return redirect('clinica:home')
 
 
 def reset_password(request):
@@ -93,7 +93,7 @@ def reset_password(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('clinica:home')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -102,7 +102,7 @@ def login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth_login(request, user)
-            return redirect('home')  # Cambia según el nombre de tu vista home
+            return redirect('clinica:home')  # Cambia según el nombre de tu vista home
         else:
             return render(request, 'login.html', {'error': 'Usuario o contraseña incorrectos.'})
 
@@ -116,27 +116,7 @@ from control_expediente.models import Seguimiento
 
 @login_required
 def home(request):
-    # ✅ Si el usuario tiene rol LEGAL (role = 2)
-    if hasattr(request.user, 'role') and request.user.role == 2:
-    
-        with connection.cursor() as cursor:
-            # Ejecutamos el SP pasando request.user.id como parámetro
-            cursor.execute("EXEC dbo.sp_get_alertas_expedientes @responsable=%s", [request.user.id])
-            
-            columns = [col[0] for col in cursor.description]
-            resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-        print(resultados)
-        print(type(resultados))
-
-        #return render(request, 'home_legal_original.html', {
-        return render(request, 'home_legal_modificado.html', {
-            'pendientes': resultados
-        })
-
-
-    # ✅ Otros roles → home normal
-    return render(request, 'home.html')
+    return redirect('clinica:home')
 
 def int_art(request):
     if not request.user.is_authenticated:

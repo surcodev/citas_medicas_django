@@ -1,13 +1,5 @@
 {% load static %}
-{% if request.user.role == 3 %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar/admin.css' %}">
-{% elif request.user.role == 2 %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar/legal.css' %}">
-{% elif request.user.role == 1 %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar/contabilidad.css' %}">
-{% else %}
-{% endif %}
-
 <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css" />
 <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css" />
 
@@ -20,7 +12,7 @@
 }
 
 .dropdown .profile:hover {
-    background-color: #f0f0f0; /* color de fondo al pasar el mouse */
+    background-color: #fff; /* color de fondo al pasar el mouse */
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap');
@@ -72,17 +64,17 @@
 </style>
 
 <nav
-    class="{% if 'lista_expediente' in request.path %}nav-expediente{% elif 'seguimiento_expediente' in request.path %}nav-expediente{% elif 'lista_tramite' in request.path %}nav-tramite{% elif 'lista_partidas' in request.path %}nav-partida{% elif 'carpeta_fiscal' in request.path %}nav-carpeta-fiscal{% elif 'lista_planos' in request.path %}nav-lista-plano{% elif 'centro_costos' in request.path or 'home_' in request.path %}nav-centro-costos{% elif 'seguimiento_tramite' in request.path %}nav-tramite{% elif 'concluido' in request.path %}nav-expediente-concluido{% else %}nav-default{% endif %}">
+    class="{% if 'pacientes' in request.path %}nav-paciente{% elif 'seguimiento_expediente' in request.path %}nav-expediente{% elif 'concluido' in request.path %}nav-expediente-concluido{% else %}nav-default{% endif %}">
 
     <div class="logo">
-        <a href="{% url 'home' %}" style="color: white; font-weight: bold;">
+        <a href="{% url 'clinica:home' %}" style="color: white; font-weight: bold;">
             DERMATOLOGÍA CLÍNICA INTEGRAL
         </a>
     </div>
 
     <ul class="navlinks h5">
         <li>
-            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'clinica:home' %}">Inicio</a>
         </li>
         <li>
             <a href="{% url 'clinica:lista_pacientes' %}">Pacientes</a>
@@ -94,7 +86,7 @@
             <a href="{% url 'productivity:calendar' %}">Calendario</a>
         </li>
         <li>
-            <a href="#">Inventario</a>
+            <a href="https://docs.google.com/spreadsheets/d/18Kx1Ag493T5e69ckHhNcsU-jeTAmY20so7cIfNF21rA/edit?gid=645865557#gid=645865557" target="_blank">Inventario</a>
         </li>
         <div class="d-none">
             <li>
@@ -166,7 +158,7 @@
 <div class="menubar">
     <ul>
         <li>
-            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'clinica:home' %}">Inicio</a>
         </li>
         <li class="d-none">
             <a href="{% url 'lista_usuarios' %}">Administración</a>

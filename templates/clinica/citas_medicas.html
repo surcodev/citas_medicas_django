@@ -35,6 +35,18 @@
         border: 1px solid #000;
     }
 
+    .estado-completado {
+        background-color: #d7ffe0 !important; /* Verde */
+        color: #000;
+        font-weight: bold;
+    }
+
+    .estado-programado {
+        background-color: #ffd2d7 !important; /* Rojo */
+        color: #000;
+        font-weight: bold;
+    }
+
 
 </style>
 
@@ -44,34 +56,34 @@
     </div>
 </div>
 
-<div class="px-3 py-1" style="background-color: #e4e3fc;">
+<div class="px-3 py-1" style="background-color: #F2FDFF;">
     <!-- Sección de búsqueda -->
                     <h5 class="mb-2">Utiliza los filtros para localizar la cita&nbsp;&nbsp;<i class="bi bi-search"></i></h5>
 
                     <div class="row mb-3">
                         
-
-                        <!-- Partida -->
                         <div class="col">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control filter-input" data-column="2">
-                        </div>
-
-                        <div class="col">
-                            <label class="form-label">Código</label>
+                            <label class="form-label">PACIENTE</label>
                             <input type="text" class="form-control filter-input" data-column="0">
                         </div>
 
-                        <!-- Descripción -->
                         <div class="col">
-                            <label class="form-label">Descripción</label>
+                            <label class="form-label">FECHA</label>
+                            <input type="date" class="form-control filter-input" data-column="1">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">MOTIVO</label>
                             <input type="text" class="form-control filter-input" data-column="3">
                         </div>
 
-                        <!-- Ubicación -->
                         <div class="col">
-                            <label class="form-label">Ubicación</label>
-                            <input type="text" class="form-control filter-input" data-column="5">
+                            <label class="form-label">ESTADO</label>
+                            <select class="form-select filter-input" data-column="4">
+                                <option value="">Todos</option>
+                                <option value="Completado">Completado</option>
+                                <option value="Programado">Programado</option>
+                            </select>
                         </div>
 
                         <!-- Botón Limpiar Filtros -->
@@ -79,14 +91,14 @@
                             <label class="form-label" style="color: #e4e3fc;">Limpiar</label>
                             <a href="{% url 'clinica:lista_pacientes' %}" id="clearFilters"
                                 class="form-control btn btn-secondary text-center"
-                                style="background-color: #4f46e5; border: none; line-height: 25px;">Limpiar
+                                style="background-color: #0995AD; border: none; line-height: 25px;">Limpiar
                                 Filtros</a>
                         </div>
 
                         <div class="col d-none">
                             <label class="form-label" style="color: #e4e3fc;">Excel</label>
                             <button id="exportBtn" class="btn btn-success form-control btn btn-secondary text-center"
-                                style="background-color: #4f46e5; line-height: 25px; border: none;">
+                                style="background-color: #0995AD; line-height: 25px; border: none;">
                                 <i class="bi-file-earmark-excel"></i>
                                 Exportar excel
                             </button>
@@ -97,7 +109,7 @@
                     <!-- Botón para abrir el modal de agregar -->
                     <center>
                         <button type="button" class="btn text-white"
-                            style="background-color: #4f46e5; border: none;" data-bs-toggle="modal"
+                            style="background-color: #0995AD; border: none;" data-bs-toggle="modal"
                             data-bs-target="#pacienteModal">
                             <i class="bi bi-plus-lg"></i> Crear nueva cita
                         </button>
@@ -114,7 +126,7 @@
                     <div class="table-container" style="max-height: 65vh; overflow-y: auto; overflow-x: auto;">
                         <table class="table table-hover table-bordered-gray" id="documentsTable">
                             <thead style="position: sticky; top: 0; z-index: 1;">
-                                <tr style="background-color: #26292E !important;">
+                                <tr style="background-color: #000 !important;">
                                     <th style="color: white;">PACIENTE</th>
                                     <th style="color: white;">FECHA</th>
                                     <th style="color: white;">HORA</th>
@@ -127,14 +139,20 @@
                                 {% for c in citas %}
                                 <tr>
                                     <td>{{ c.paciente.nombre|default:'' }}</td>
-                                    <td>{{ c.fecha|default:'' }}</td>
-                                    <td>{{ c.hora|default:'' }}</td>
+                                    <td>{{ c.fecha|date:"d/m/Y"|default:'' }}</td>
+                                    <td>{{ c.hora|time:"H:i" }}</td>
                                     <td>{{ c.motivo|default:'' }}</td>
-                                    <td>{{ c.estado|yesno:"Completado,Programado" }}</td>
+                                    <td class="{% if c.estado %}estado-completado{% else %}estado-programado{% endif %}">
+                                        {% if c.estado %}
+                                            Completado
+                                        {% else %}
+                                            Programado
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <div class="btn-group" role="group">
                                             <button type="button" class="btn btn-sm text-white me-2 btn-editar"
-                                                    style="background-color: #000000;"
+                                                    style="background-color: #000;"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editarCitaModal"
                                                     data-id="{{ c.id }}"
@@ -144,16 +162,21 @@
                                                     data-hora="{{ c.hora|time:'H:i' }}"
                                                     data-motivo="{{ c.motivo|default_if_none:'' }}"
                                                     data-estado="{{ c.estado }}">
-                                                <i class="bi bi-pencil-square"></i>
+                                                <i class="bi bi-pencil-square"></i> Editar horario
                                             </button>
 
 
-                                            <a href="{% url 'clinica:eliminar_cita' c.id %}"
-                                                class="btn btn-sm text-white btnEliminar"
-                                                style="background-color: #4f46e5;" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
+                                            <a href="{% url 'clinica:atender_cita' c.id %}"
+                                                class="btn btn-sm text-white me-2"
+                                                style="background-color: #cd8e29;">
+                                                <i class="bi bi-pencil-square"></i> Atender cita
                                             </a>
 
+                                            <a href="{% url 'clinica:eliminar_cita' c.id %}"
+                                                class="btn btn-sm text-white btnEliminar"
+                                                style="background-color: #0995AD;" title="Eliminar">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -173,8 +196,8 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
 
-            <div class="modal-header text-white" style="background-color: #4f46e5;">
-                <h5 class="modal-title">Editar Cita</h5>
+            <div class="modal-header text-white" style="background-color: #0995AD;">
+                <h5 class="modal-title">Editar horario de la Cita</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
@@ -223,7 +246,7 @@
                         </div>
 
                         <!-- Estado -->
-                        <div class="col-md-4">
+                        <div class="col-md-4 d-none">
                             <label class="form-label">Estado</label>
                             <select id="edit_estado" name="estado" class="form-select">
                                 <option value="False">Programado</option>
@@ -256,7 +279,7 @@
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: #4f46e5;">
+            <div class="modal-header text-white" style="background-color: #0995AD;">
                 <h5 class="modal-title" id="pacienteModalLabel">Agregar Nueva Cita</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
@@ -310,6 +333,38 @@
 
 
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filtros = document.querySelectorAll(".filter-input");
+    const tabla = document.getElementById("documentsTable");
+    const filas = tabla.querySelectorAll("tbody tr");
+
+    filtros.forEach(filtro => {
+        filtro.addEventListener("input", filtrarTabla);
+        filtro.addEventListener("change", filtrarTabla);
+    });
+
+    function filtrarTabla() {
+        filas.forEach(fila => {
+            let mostrar = true;
+
+            filtros.forEach(filtro => {
+                const columna = filtro.dataset.column;
+                const valorFiltro = filtro.value.toLowerCase().trim();
+                const textoCelda = fila.children[columna].textContent.toLowerCase().trim();
+
+                if (valorFiltro !== "") {
+                    if (!textoCelda.includes(valorFiltro)) {
+                        mostrar = false;
+                    }
+                }
+            });
+
+            fila.style.display = mostrar ? "" : "none";
+        });
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     var editarModal = document.getElementById('editarCitaModal');
 
@@ -368,8 +423,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-
-
-
 
 {% endblock %}

@@ -6,6 +6,7 @@
 <style>
     label.form-label {
         font-weight: 500;
+        color: #000;
     }
 
     .modal-content {
@@ -35,6 +36,44 @@
         border: 1px solid #000;
     }
 
+/* Contenedor de tabs */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f8f9fa; /* fondo de la barra de tabs */
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+}
+
+/* Tabs individuales */
+.nav-tabs .nav-link {
+    border: none;
+    color: #495057;
+    margin-right: 0.2rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Hover sobre tabs */
+.nav-tabs .nav-link:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+/* Tab activo */
+.nav-tabs .nav-link.active {
+    background-color: #e9ecef; /* color de fondo para el seleccionado */
+    color: #000;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste del contenido del tab */
+.tab-content {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
 
 </style>
 
@@ -44,7 +83,7 @@
     </div>
 </div>
 
-<div class="px-3 py-1" style="background-color: #e4e3fc;">
+<div class="px-3 py-1" style="background-color: #F2FDFF;">
     <!-- Sección de búsqueda -->
                     <h5 class="mb-2">Utiliza los filtros para localizar el paciente&nbsp;&nbsp;<i class="bi bi-search"></i></h5>
 
@@ -54,39 +93,39 @@
                         <!-- Partida -->
                         <div class="col">
                             <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control filter-input" data-column="2">
+                            <input type="text" class="form-control filter-input" data-column="0">
                         </div>
 
                         <div class="col">
-                            <label class="form-label">Código</label>
-                            <input type="text" class="form-control filter-input" data-column="0">
+                            <label class="form-label">DNI</label>
+                            <input type="text" class="form-control filter-input" data-column="1">
                         </div>
 
                         <!-- Descripción -->
                         <div class="col">
-                            <label class="form-label">Descripción</label>
-                            <input type="text" class="form-control filter-input" data-column="3">
+                            <label class="form-label">TELÉFONO</label>
+                            <input type="text" class="form-control filter-input" data-column="2">
                         </div>
 
                         <!-- Ubicación -->
                         <div class="col">
-                            <label class="form-label">Ubicación</label>
-                            <input type="text" class="form-control filter-input" data-column="5">
+                            <label class="form-label">EMAIL</label>
+                            <input type="text" class="form-control filter-input" data-column="3">
                         </div>
 
                         <!-- Botón Limpiar Filtros -->
                         <div class="col d-none">
-                            <label class="form-label" style="color: #e4e3fc;">Limpiar</label>
+                            <label class="form-label" style="color: #fff;">Limpiar</label>
                             <a href="{% url 'clinica:lista_pacientes' %}" id="clearFilters"
                                 class="form-control btn btn-secondary text-center"
-                                style="background-color: #4f46e5; border: none; line-height: 25px;">Limpiar
+                                style="background-color: #0995AD; border: none; line-height: 25px;">Limpiar
                                 Filtros</a>
                         </div>
 
                         <div class="col d-none">
-                            <label class="form-label" style="color: #e4e3fc;">Excel</label>
+                            <label class="form-label" style="color: #fff;">Excel</label>
                             <button id="exportBtn" class="btn btn-success form-control btn btn-secondary text-center"
-                                style="background-color: #4f46e5; line-height: 25px; border: none;">
+                                style="background-color: #0995AD; line-height: 25px; border: none;">
                                 <i class="bi-file-earmark-excel"></i>
                                 Exportar excel
                             </button>
@@ -97,7 +136,7 @@
                     <!-- Botón para abrir el modal de agregar -->
                     <center>
                         <button type="button" class="btn text-white"
-                            style="background-color: #4f46e5; border: none;" data-bs-toggle="modal"
+                            style="background-color: #0995AD; border: none;" data-bs-toggle="modal"
                             data-bs-target="#pacienteModal">
                             <i class="bi bi-plus-lg"></i> Agregar Nuevo Paciente
                         </button>
@@ -132,7 +171,7 @@
                                     <td class="d-none">
                                         {% if p.pdf %}
                                         <button type="button" style="background: none; border: none; color: 
-                                            #4f46e5; cursor: pointer;" data-bs-toggle="modal"
+                                            #0995AD; cursor: pointer;" data-bs-toggle="modal"
                                             data-bs-target="#pdfViewerModal" data-pdf-url="{{ p.pdf.url }}"
                                             class="ver-pdf-btn">
                                             <i class="bi bi-file-earmark-pdf-fill"></i> PDF <i class="bi bi-check-lg"></i>
@@ -180,14 +219,27 @@
                                                 data-nombre_contacto_emergencia3="{{ p.nombre_contacto_emergencia3|default_if_none:'' }}"
                                                 data-telefono_contacto_emergencia3="{{ p.telefono_contacto_emergencia3|default_if_none:'' }}"
                                                 data-relacion_contacto_emergencia3="{{ p.relacion_contacto_emergencia3|default_if_none:'' }}">
-                                                <i class="bi bi-pencil-square"></i>
+                                                <i class="bi bi-pencil-square"></i> Editar
                                             </button>
 
+                                            <a href="{% url 'clinica:detalle_paciente' p.id %}" 
+                                            class="btn btn-sm text-white d-none" 
+                                            style="background-color:#555;" title="Historial">
+                                                <i class="bi bi-eye"></i> Ver historial
+                                            </a>
+
+                                            <button type="button" class="btn btn-sm text-white me-2" 
+                                                    style="background-color:#555;" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#historialModal" 
+                                                    data-id="{{ p.id }}">
+                                                <i class="bi bi-eye"></i> Ver Historial
+                                            </button>
 
                                             <a href="{% url 'clinica:eliminar_paciente' p.id %}"
-                                                class="btn btn-sm text-white btnEliminar"
-                                                style="background-color: #4f46e5;" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
+                                                class="btn btn-sm text-white btnEliminar me-2"
+                                                style="background-color: #0995AD;" title="Eliminar">
+                                                <i class="bi bi-trash3"></i> Eliminar
                                             </a>
 
                                         </div>
@@ -204,13 +256,38 @@
 </div>
 
 
+
+
+
+
+
+<div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historialModalLabel">Historial de Citas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="accordionHistorial">
+          <!-- Aquí se llenará dinámicamente con JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 <!-- Modal para editar paciente -->
 <div class="modal fade" id="editarPacienteModal" tabindex="-1" aria-labelledby="editarPacienteLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
 
-            <div class="modal-header text-white" style="background-color: #4f46e5;">
-                <h5 class="modal-title">Editar Paciente</h5>
+            <div class="modal-header text-white" style="background-color: #0995AD;">
+                <h5 class="modal-title">Editar datos del Paciente</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
@@ -428,7 +505,7 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <button type="submit" class="btn px-5 py-2" style="background-color: #000000; color: #ffffff;">
+                        <button type="submit" class="btn px-5 py-2" style="background-color: #000000; color: #fff;">
                             Guardar
                         </button>
                     </div>
@@ -444,63 +521,232 @@
 
 
 <!-- Modal para agregar nuevo paciente -->
-<div class="modal fade" id="pacienteModal" tabindex="-1" aria-labelledby="pacienteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header text-white" style="background-color: #4f46e5;">
-                <h5 class="modal-title" id="pacienteModalLabel">Agregar Nuevo Paciente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+<div class="modal fade" id="pacienteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background-color: #0995AD;">
+        <h5 class="modal-title">Agregar Nuevo Paciente</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="POST" action="{% url 'clinica:lista_pacientes' %}">
+          {% csrf_token %}
+
+          <!-- TABS -->
+          <ul class="nav nav-tabs mb-3">
+                <li class="nav-item">
+                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDatosNuevo">
+                    Datos Personales
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAnamnesisNuevo">
+                    Anamnesis
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabExamenNuevo">
+                    Examen Físico
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabEmergenciaNuevo">
+                    Contactos
+                </button>
+                </li>
+            </ul>
+
+          <!-- CONTENIDO DE LOS TABS -->
+          <div class="tab-content">
+
+            <!-- DATOS PERSONALES -->
+            <div class="tab-pane fade show active" id="tabDatosNuevo">
+              <div class="row g-3" style="margin-top: 5px !important;">
+                <div class="col-md-6">
+                  <label class="fw-bold">Nombre</label>
+                  {{ form.nombre }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Correo Electrónico (opcional)</label>
+                  {{ form.email }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">DNI</label>
+                  {{ form.dni }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Teléfono</label>
+                  {{ form.telefono }}
+                </div>
+
+                <div class="col-md-12">
+                  <label class="fw-bold">Dirección</label>
+                  {{ form.direccion }}
+                </div>
+              </div>
             </div>
 
-            <div class="modal-body">
-                <form method="POST" action="{% url 'clinica:lista_pacientes' %}">
-                    {% csrf_token %}
+            <!-- ANAMNESIS -->
+            <div class="tab-pane fade" id="tabAnamnesisNuevo">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="fw-bold">Alergias</label>
+                  {{ form.alergias_conocidas }}
+                </div>
 
-                    <div class="container">
-                        <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="fw-bold">Enfermedades Previas</label>
+                  {{ form.emfermedades_previas }}
+                </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre</label>
-                                {{ form.nombre }}
-                            </div>
+                <div class="col-md-6">
+                  <label class="fw-bold">Antecedentes Quirúrgicos</label>
+                  {{ form.antecentes_quirurgicos }}
+                </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Correo electrónico</label>
-                                {{ form.email }}
-                            </div>
+                <div class="col-md-6">
+                  <label class="fw-bold">Antecedentes Familiares</label>
+                  {{ form.antecedentes_familiares }}
+                </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">DNI</label>
-                                {{ form.dni }}
-                            </div>
+                <div class="col-md-6">
+                  <label class="fw-bold">Medicamentos</label>
+                  {{ form.medicamentos_actuales }}
+                </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">Teléfono</label>
-                                {{ form.telefono }}
-                            </div>
+                <div class="col-md-6">
+                  <label class="fw-bold">Hábitos</label>
+                  {{ form.habitos }}
+                </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">Dirección</label>
-                                {{ form.direccion }}
-                            </div>
-
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn px-5 py-2"
-                                style="background-color: #000000; color: #ffffff;">
-                                Guardar
-                            </button>
-                        </div>
-
-                    </div>
-                </form>
+                <div class="col-md-12">
+                  <label class="fw-bold">Relato Clínico</label>
+                  {{ form.relato_clinico }}
+                </div>
+              </div>
             </div>
 
-        </div>
+            <!-- EXAMEN FÍSICO -->
+            <div class="tab-pane fade" id="tabExamenNuevo">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                <label class="form-label">Edad</label>
+                {{ form.edad }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Peso (kg)</label>
+                {{ form.peso }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Altura (m)</label>
+                {{ form.altura }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Presión Arterial (mmHg)</label>
+                {{ form.presion_arterial }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Frecuencia Cardíaca (lpm)</label>
+                {{ form.frecuencia_cardiaca }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Frecuencia Respiratoria (rpm)</label>
+                {{ form.frecuencia_respiratoria }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Temperatura (°C)</label>
+                {{ form.temperatura }}
+                </div>
+
+                <div class="col-md-8">
+                <label class="form-label">Tipo de Sangre</label>
+                {{ form.tipo_de_sangre }}
+                </div>
+
+                <div class="col-md-12">
+                <label class="form-label">Descripción Examen Físico</label>
+                {{ form.descripcion_examen_fisico }}
+                </div>
+
+            </div>
+            </div>
+
+
+            <!-- CONTACTOS -->
+            <div class="tab-pane fade" id="tabEmergenciaNuevo">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 1</label>
+                {{ form.nombre_contacto_emergencia1 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 1</label>
+                {{ form.telefono_contacto_emergencia1 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 1</label>
+                {{ form.relacion_contacto_emergencia1 }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 2</label>
+                {{ form.nombre_contacto_emergencia2 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 2</label>
+                {{ form.telefono_contacto_emergencia2 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 2</label>
+                {{ form.relacion_contacto_emergencia2 }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 3</label>
+                {{ form.nombre_contacto_emergencia3 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 3</label>
+                {{ form.telefono_contacto_emergencia3 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 3</label>
+                {{ form.relacion_contacto_emergencia3 }}
+                </div>
+
+            </div>
+            </div>
+
+          </div>
+
+          <!-- BOTÓN GUARDAR -->
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-dark px-5">
+              Guardar
+            </button>
+          </div>
+
+        </form>
+      </div>
+
     </div>
+  </div>
 </div>
 
 
@@ -508,6 +754,38 @@
 
 
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filters = document.querySelectorAll(".filter-input");
+    const table = document.getElementById("documentsTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    filters.forEach(input => {
+        input.addEventListener("keyup", function () {
+            filterTable();
+        });
+    });
+
+    function filterTable() {
+        rows.forEach(row => {
+            let visible = true;
+
+            filters.forEach(input => {
+                const columnIndex = input.dataset.column;
+                const filterValue = input.value.toLowerCase();
+                const cellText = row.children[columnIndex].textContent.toLowerCase();
+
+                if (!cellText.includes(filterValue)) {
+                    visible = false;
+                }
+            });
+
+            row.style.display = visible ? "" : "none";
+        });
+    }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const editarModal = document.getElementById("editarPacienteModal");
@@ -589,6 +867,75 @@ function cargarPaciente(id) {
             });
         });
 }
+
+
+
+
+const historialModal = document.getElementById('historialModal');
+
+historialModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const pacienteId = button.getAttribute('data-id');
+
+    const container = historialModal.querySelector('#accordionHistorial');
+    container.innerHTML = ''; // Limpiar contenido previo
+
+    fetch(`/clinica/historial_paciente/${pacienteId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.citas.length === 0) {
+                container.innerHTML = '<p class="text-muted mt-3">No hay citas completadas.</p>';
+                return;
+            }
+
+            data.citas.forEach(c => {
+                const item = document.createElement('div');
+                item.classList.add('accordion-item');
+
+                // Generar HTML de imágenes si existen
+                let imagenesHTML = '';
+                if (c.respuesta.imagenes.length > 0) {
+                    imagenesHTML = '<div class="row mt-2">';
+                    c.respuesta.imagenes.forEach(url => {
+                        imagenesHTML += `
+                            <div class="col-3 mb-3">
+                                <img src="${url}" class="img-fluid rounded border" style="cursor:pointer;" onclick="window.open('${url}','_blank')">
+                            </div>
+                        `;
+                    });
+                    imagenesHTML += '</div>';
+                } else {
+                    imagenesHTML = '<p class="text-muted mt-2">No hay imágenes.</p>';
+                }
+
+                item.innerHTML = `
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#cita${c.id}">
+                            📅 ${c.fecha} — ${c.motivo || "Sin motivo"}
+                        </button>
+                    </h2>
+                    <div id="cita${c.id}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <p><strong>Diagnóstico:</strong> ${c.respuesta.diagnostico || '—'}</p>
+                            <p><strong>Tratamiento:</strong> ${c.respuesta.tratamiento || '—'}</p>
+                            <p><strong>Notas:</strong> ${c.respuesta.notas || '—'}</p>
+                            <p><strong>Receta:</strong> ${c.respuesta.receta || '—'}</p>
+                            <div><strong>Imágenes:</strong> ${imagenesHTML}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        })
+        .catch(err => {
+            console.error('Error al cargar el historial:', err);
+            container.innerHTML = '<p class="text-danger mt-3">Error al cargar el historial.</p>';
+        });
+});
+
+
 </script>
 
 

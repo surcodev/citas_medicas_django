@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Receta Médica</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 25px;
+            color: #111;
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #83999d;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .header .titulo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .header .fecha {
+            font-size: 11px;
+            margin-top: 4px;
+            color: #000;
+        }
+
+        /* ================= SECCIONES ================= */
+        .seccion {
+            background: #83999d;
+            color: white;
+            padding: 7px 10px;
+            font-weight: bold;
+            margin-top: 18px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .campo {
+            font-size: 11px;
+            color: #000;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .valor {
+            font-size: 13px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* ================= TABLA ================= */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        th {
+            background: #f2f2f2;
+            font-weight: bold;
+        }
+
+        /* ================= BLOQUES TEXTO ================= */
+        .bloque-texto {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 8px;
+            min-height: 50px;
+            border-radius: 6px;
+        }
+
+        /* ================= FIRMA ================= */
+        .firma {
+            margin-top: 120px;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .firma .linea {
+            border-top: 1px solid #000;
+            width: 250px;
+            margin-left: auto;
+            margin-bottom: 5px;
+        }
+
+        /* ================= FOOTER ================= */
+        .footer {
+            margin-top: 25px;
+            font-size: 10px;
+            color: #555;
+            text-align: left;
+        }
+
+        .logo-css {
+    text-align: right;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    line-height: 1.1;
+}
+
+.logo-iniciales {
+    font-size: 38px;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+.logo-nombre {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.logo-sub {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-top: 2px;
+    color: #fff;
+}
+
+
+
+
+
+.card {
+    width: 100%;
+    overflow: hidden; /* Limpia floats */
+}
+
+.card > div {
+    width: 48%;
+    float: left;   /* ✅ Fuerza 2 columnas reales */
+    margin-bottom: 10px;
+    margin-right: 4%;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.card > div:nth-child(2n) {
+    margin-right: 0; /* Quita margen derecho a la 2da columna */
+}
+
+.campo {
+    font-weight: bold;
+    font-size: 12px;
+    color: #555;
+}
+
+.valor {
+    font-size: 14px;
+}
+
+    </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<div class="header">
+    <div>
+        <div class="titulo">RECETA MÉDICA</div>
+        <div class="fecha">Fecha de emisión: {{ fecha_actual|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div style="text-align:right;">
+        <div class="logo-css">
+            <div class="logo-iniciales">BR</div>
+            <div class="logo-nombre">Dra. Brunella Raymundo</div>
+            <div class="logo-sub">DERMATOLOGÍA INTEGRAL</div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= DATOS PACIENTE ================= -->
+<div class="seccion">DATOS DEL PACIENTE</div>
+
+<div class="card">
+    <div>
+        <div class="campo">Nombre:</div>
+        <div class="valor">{{ paciente.nombre }}</div>
+    </div>
+
+    <div>
+        <div class="campo">DNI:</div>
+        <div class="valor">{{ paciente.dni }}</div>
+    </div>
+
+    <div>
+        <div class="campo">Teléfono:</div>
+        <div class="valor">{{ paciente.telefono }}</div>
+    </div>
+
+    <div>
+        <div class="campo">Dirección:</div>
+        <div class="valor">{{ paciente.direccion }}</div>
+    </div>
+</div>
+
+<!-- ================= DATOS ATENCIÓN ================= -->
+<div class="seccion">DATOS DE ATENCIÓN</div>
+
+<div class="card">
+    <div>
+        <div class="campo">Doctora:</div>
+        <div class="valor">Brunella Clarisa Raymundo Villalva</div>
+    </div>
+
+    <div>
+        <div class="campo">Especialidad:</div>
+        <div class="valor">Dermatología</div>
+    </div>
+    <div>
+        <div class="campo">Fecha de atención:</div>
+        <div class="valor">{{ cita.fecha|date:"d/m/Y" }}</div>
+    </div>
+
+    <div>
+        <div class="campo">Hora:</div>
+        <div class="valor">{{ cita.hora|time:"H:i" }}</div>
+    </div>
+</div>
+
+{% if respuesta %}
+
+<!-- ================= DIAGNÓSTICO ================= -->
+<div class="seccion">DIAGNÓSTICO</div>
+<div class="bloque-texto">
+    {{ respuesta.diagnostico }}
+</div>
+
+<!-- ================= TRATAMIENTO ================= -->
+<div class="seccion">TRATAMIENTO</div>
+
+<div class="bloque-texto">
+    {{ respuesta.tratamiento|linebreaksbr }}
+</div>
+
+<!-- ================= RECOMENDACIONES ================= -->
+<div class="seccion">RECOMENDACIONES</div>
+<div class="bloque-texto">
+    {{ respuesta.notas }}
+</div>
+
+{% endif %}
+
+<!-- ================= FIRMA ================= -->
+<div class="firma">
+    <div class="linea"></div>
+    MÉDICO DERMATÓLOGO<br>
+    CMP: 053176
+</div>
+
+<div class="footer">
+    Documento generado automáticamente por el sistema
+</div>
+
+</body>
+</html>

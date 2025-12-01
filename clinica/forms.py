@@ -1,11 +1,27 @@
 from django import forms
 from .models import *
 from datetime import time, timedelta, datetime
+from django.forms.widgets import ClearableFileInput
+
 
 class PacienteForm(forms.ModelForm):
     class Meta:
         model = Paciente
         fields = '__all__'
+        widgets = {
+            'relato_clinico': forms.Textarea(attrs={
+                'rows': 5,      # altura del textarea
+                'cols': 60,     # ancho (puedes omitirlo si usas CSS)
+                'class': 'form-control',  # para Bootstrap
+                'placeholder': 'Escribe el relato clínico aquí ...'
+            }),
+            'descripcion_examen_fisico': forms.Textarea(attrs={
+                'rows': 5,      # altura del textarea
+                'cols': 60,     # ancho (puedes omitirlo si usas CSS)
+                'class': 'form-control',  # para Bootstrap
+                'placeholder': 'Escribe aquí descripción del examen físico ...'
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,3 +74,21 @@ class CitaForm(forms.ModelForm):
             if name != "hora":  # evitar sobrescribir la clase del select
                 field.widget.attrs['class'] = 'form-control'
                 field.widget.attrs['autocomplete'] = 'off'
+
+# 👉 Widget personalizado que SÍ permite múltiples archivos
+class MultiFileInput(ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class ImagenRespuestaCitaForm(forms.ModelForm):
+    class Meta:
+        model = ImagenRespuestaCita
+        fields = ["imagen"]
+
+
+# 👉 Formulario para subir múltiples imágenes
+class MultipleImagenesForm(forms.Form):
+    imagenes = forms.FileField(
+        widget=MultiFileInput(attrs={'multiple': True}),
+        required=False
+    )

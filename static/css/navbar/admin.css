@@ -13,7 +13,7 @@
 .card-link:hover .card {
     background-color: #FCEEEE !important;
     transform: scale(1.03);
-    color: #4f46e5;
+    color: #3A8C8B;
 }
 
 /* Estilo por defecto */
@@ -26,12 +26,12 @@
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
         rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     z-index: 1;
-    background-color: #4f46e5;
+    background-color: #068aa1;
     /* rojo */
 }
 
 /* Estilo especial si hay "expediente" en la URL */
-.nav-expediente {
+.nav-paciente {
     margin-bottom: 10px;
     padding: 5px 5%;
     display: flex;
@@ -40,7 +40,7 @@
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
         rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     z-index: 1;
-    background-color: #0995AD;
+    background-color: #068aa1;
     /* celeste */
 }
 
@@ -287,7 +287,7 @@ nav .cart-profile .dropdown-btn-active {
     width: 60%;
     height: 100vh;
     padding: 20% 0;
-    background: #4f46e5;
+    background: #3A8C8B;
     transition: all 0.5s ease-in;
     z-index: 2;
 }

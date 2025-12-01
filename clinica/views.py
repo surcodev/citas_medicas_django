@@ -3,25 +3,238 @@ from .models import *
 from .forms import *
 from django.contrib import messages
 from django.http import JsonResponse
+from productividad.models import *
+from django.contrib.auth.decorators import login_required
+from datetime import datetime, date, timedelta
+from django.utils.timezone import now
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+import pdfkit
+
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
+def historial_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    
+    # Solo citas completadas
+    citas = paciente.citas.filter(estado=True).order_by('-fecha', '-hora')
+
+    citas_data = []
+    for c in citas:
+        # Manejar citas sin respuesta
+        try:
+            r = c.respuesta
+            diagnostico = r.diagnostico
+            tratamiento = r.tratamiento
+            notas = r.notas
+            receta = r.receta
+
+            # Agregar URLs de imágenes
+            imagenes = [img.imagen.url for img in r.imagenes.all()]
+        except:
+            diagnostico = ''
+            tratamiento = ''
+            notas = ''
+            receta = ''
+            imagenes = []
+
+        citas_data.append({
+            "id": c.id,
+            "fecha": c.fecha.strftime('%Y-%m-%d'),
+            "hora": c.hora.strftime('%H:%M'),
+            "motivo": c.motivo or '',
+            "respuesta": {
+                "diagnostico": diagnostico,
+                "tratamiento": tratamiento,
+                "notas": notas,
+                "receta": receta,
+                "imagenes": imagenes,
+            }
+        })
+
+    return JsonResponse({"citas": citas_data})
+
+
+@login_required
+def generar_pdf_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id)
+
+    if not cita.estado:
+        return HttpResponse("La cita aún no está completada.", status=400)
+
+    respuesta = cita.respuesta
+    paciente = cita.paciente
+    imagenes = respuesta.imagenes.all() if respuesta else []
+
+    html = render_to_string("clinica/pdf/cita_pdf.html", {
+        "cita": cita,
+        "paciente": paciente,
+        "respuesta": respuesta,
+        "imagenes": imagenes,
+        "fecha_actual": datetime.now(),
+    })
+
+    options = {
+        'page-size': 'A4',
+        'encoding': 'UTF-8',
+    }
+
+    # pdf = pdfkit.from_string(html, False, options=options)
+    import os
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, options=options, configuration=config)
+
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="cita_{cita.id}.pdf"'
+    return response
+
+
+
+@login_required
+def home(request):
+
+    hoy = date.today()
+    inicio_semana = hoy - timedelta(days=hoy.weekday())
+    fin_semana = inicio_semana + timedelta(days=6)
+
+    # Citas de hoy
+    citas_hoy = Cita.objects.filter(fecha=hoy).order_by("hora")
+
+    # Citas de la semana
+    citas_semana = Cita.objects.filter(
+        fecha__range=[inicio_semana, fin_semana]
+    ).order_by("fecha", "hora")
+
+    # Próxima cita del día
+    proxima_cita = citas_hoy.first() if citas_hoy.exists() else None
+
+    return render(request, "clinica/home.html", {
+        "citas_hoy": citas_hoy,
+        "citas_semana": citas_semana,
+        "proxima_cita": proxima_cita,
+    })
+
+def eliminar_imagen_respuesta(request, img_id):
+    imagen = get_object_or_404(ImagenRespuestaCita, id=img_id)
+    cita_id = imagen.respuesta.cita.id
+    imagen.delete()
+    return redirect("clinica:atender_cita", cita_id=cita_id)
+
+def atender_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id)
+    paciente = cita.paciente
+
+    # Crear respuesta si no existe
+    respuesta, created = RespuestaCita.objects.get_or_create(cita=cita)
+
+    # ================================
+    # NUEVO: Citas anteriores del paciente
+    # ================================
+    citas_anteriores = (
+        Cita.objects
+        .filter(paciente=paciente)
+        .exclude(id=cita.id)
+        .order_by('-fecha')   # más recientes primero
+    )
+
+    if request.method == "POST":
+        # --- GUARDAR RESPUESTA ---
+        respuesta.diagnostico = request.POST.get("diagnostico")
+        respuesta.tratamiento = request.POST.get("tratamiento")
+        respuesta.notas = request.POST.get("notas")
+        respuesta.receta = request.POST.get("receta")
+        respuesta.save()
+
+        # --- GUARDAR IMÁGENES ---
+        files = request.FILES.getlist("imagenes")
+        for f in files:
+            ImagenRespuestaCita.objects.create(
+                respuesta=respuesta,
+                imagen=f
+            )
+
+        # --- GUARDAR DATOS DEL PACIENTE ---
+        fields = [
+            "alergias_conocidas", "emfermedades_previas", "antecentes_quirurgicos",
+            "antecedentes_familiares", "medicamentos_actuales", "habitos",
+            "relato_clinico",
+            "peso", "altura", "presion_arterial", "frecuencia_cardiaca",
+            "frecuencia_respiratoria", "temperatura", "tipo_de_sangre",
+            "descripcion_examen_fisico",
+            "nombre_contacto_emergencia1", "telefono_contacto_emergencia1",
+            "relacion_contacto_emergencia1",
+            "nombre_contacto_emergencia2", "telefono_contacto_emergencia2",
+            "relacion_contacto_emergencia2",
+            "nombre_contacto_emergencia3", "telefono_contacto_emergencia3",
+            "relacion_contacto_emergencia3",
+        ]
+
+        for field in fields:
+            setattr(paciente, field, request.POST.get(field))
+
+        paciente.save()
+
+        # Cambiar estado a completada
+        cita.estado = True
+        cita.save()
+
+        return redirect("clinica:atender_cita", cita_id=cita.id)
+
+    # ================================
+    # RETORNO FINAL CON TODO LO NECESARIO
+    # ================================
+    return render(request, "clinica/atender_cita.html", {
+        "cita": cita,
+        "paciente": paciente,
+        "respuesta": respuesta,
+        "citas_anteriores": citas_anteriores,  # 🔥 IMPORTANTE
+    })
+
 
 
 def lista_citas(request):
-
     if request.method == "POST":
         form = CitaForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('clinica:lista_citas')  # redirige para evitar re-envío del formulario
+            nueva_cita = form.save()  # guardamos la cita
+            # ================================
+            #   CREAR DailyActivity AUTOMÁTICO
+            # ================================
+            # Fecha
+            fecha_actividad = nueva_cita.fecha
+            # Hora inicial
+            hora_ini = datetime.combine(nueva_cita.fecha, nueva_cita.hora)
+            # Hora + 30 minutos
+            hora_fin = hora_ini + timedelta(minutes=30)
+            # Convertir a formato "9:00" (sin segundos)
+            hora_ini_str = hora_ini.strftime("%H:%M")
+            hora_fin_str = hora_fin.strftime("%H:%M")
+            # Título con el formato requerido
+            titulo = f"{hora_ini_str} - {hora_fin_str} | {nueva_cita.paciente.nombre}"
+            # Descripción = motivo de la cita
+            descripcion = nueva_cita.motivo
+
+            # Crear actividad
+            DailyActivity.objects.create(
+                user=request.user,
+                date=fecha_actividad,
+                title=titulo,
+                description=descripcion
+            )
+            return redirect('clinica:lista_citas')
     else:
         form = CitaForm()
 
-    citas = Cita.objects.all()
+    citas = Cita.objects.all().order_by('fecha')
     pacientes = Paciente.objects.all()
 
     return render(request, 'clinica/citas_medicas.html', {
         'citas': citas,
         'form': form,
-        'pacientes': pacientes,   # <- aquí
+        'pacientes': pacientes,
     })
 
 
@@ -55,22 +268,43 @@ def eliminar_cita(request, doc_id):
 
 #####################################################################################
 
-def lista_pacientes(request):
+from django.shortcuts import render, redirect
+from .models import Paciente
 
+
+
+def detalle_paciente(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    # Traer todas las citas de este paciente, más recientes primero
+    citas_anteriores = paciente.citas.all().order_by('-fecha', '-hora')
+
+    return render(request, "clinica/detalle_paciente.html", {
+        "paciente": paciente,
+        "citas_anteriores": citas_anteriores,
+    })
+
+
+
+def lista_pacientes(request):
     if request.method == "POST":
         form = PacienteForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('lista_pacientes')  # redirige para evitar re-envío del formulario
+            return redirect("clinica:lista_pacientes")
     else:
         form = PacienteForm()
 
-    pacientes = Paciente.objects.all()
+    # Traer todos los pacientes con sus citas (más eficiente)
+    pacientes = Paciente.objects.prefetch_related('citas')
 
-    return render(request, 'clinica/lista_pacientes.html', {
-        'pacientes': pacientes,
-        'form': form
+    return render(request, "clinica/lista_pacientes.html", {
+        "pacientes": pacientes,
+        "form": form
     })
+
+
+
 
 def eliminar_paciente(request, doc_id):
     doc = get_object_or_404(Paciente, id=doc_id)

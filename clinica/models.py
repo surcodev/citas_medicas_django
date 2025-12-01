@@ -13,11 +13,12 @@ class Paciente(models.Model):
         ('O-', 'O-'),
     ]
 
-    nombre = models.CharField(max_length=10, blank=True, null=True)
+    nombre = models.CharField(max_length=100, blank=True, null=True)
     email = models.CharField(max_length=100, blank=True, null=True)
     dni = models.CharField(max_length=100, blank=True, null=True)
     telefono = models.CharField(max_length=255, blank=True, null=True)
-    direccion = models.CharField(max_length=50, blank=True, null=True)
+    direccion = models.CharField(max_length=100, blank=True, null=True)
+    edad = models.CharField(max_length=255, blank=True, null=True)
 
     # ANAMNESIS
     alergias_conocidas = models.CharField(max_length=255, blank=True, null=True)
@@ -104,3 +105,15 @@ class RespuestaCita(models.Model):
 
     def __str__(self):
         return f"Respuesta a la cita {self.cita.id}"
+
+class ImagenRespuestaCita(models.Model):
+    respuesta = models.ForeignKey(
+        RespuestaCita,
+        on_delete=models.CASCADE,
+        related_name="imagenes"
+    )
+    imagen = models.ImageField(upload_to="respuesta_cita/imagenes/")
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Imagen de respuesta {self.respuesta.id}"
