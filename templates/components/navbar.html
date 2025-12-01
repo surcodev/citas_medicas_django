@@ -135,7 +135,6 @@
 
         <div class="dropdown">
             <a href="{% url 'perfil_user' %}" class="profile">Mi Perfil</a>
-            <a href="{% url 'asistencia:home' %}" class="profile">Mis Asistencias</a>
             <!-- Botón cerrar sesión con apariencia de enlace -->
             <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:none;">
                 {% csrf_token %}
