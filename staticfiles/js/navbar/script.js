@@ -28,3 +28,12 @@ document.addEventListener("click", (event) => {
     dropdownBtn.classList.remove("dropdown-btn-active");
   }
 });
+
+function mostrarAlerta(event) {
+        event.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "Módulo en desarrollo",
+            text: "La funcionalidad seleccionada se encuentra en proceso de implementación.",
+        });
+    }

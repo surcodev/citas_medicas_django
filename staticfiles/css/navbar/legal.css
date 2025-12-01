@@ -44,6 +44,19 @@
     /* celeste */
 }
 
+.nav-expediente-concluido {
+    margin-bottom: 10px;
+    padding: 5px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+        rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    z-index: 1;
+    background-color: #5E7373;
+    /* celeste */
+}
+
 .nav-tramite {
     margin-bottom: 10px;
     padding: 5px 5%;
@@ -79,7 +92,7 @@
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
         rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     z-index: 1;
-    background-color: #0995AD;
+    background-color: #31A095;
     /* morado */
 }
 
