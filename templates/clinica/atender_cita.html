@@ -160,8 +160,8 @@
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#examen">Examen físico</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactos">Contactos de emergencia</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anteriores">Citas anteriores</button></li>
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#consulta">Consulta</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#receta">Receta</button></li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#consulta">Diagnóstico</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#receta">Tratamiento</button></li>
     </ul>
 
     <form method="POST" enctype="multipart/form-data">
@@ -173,19 +173,9 @@
             <div class="tab-pane fade show active" id="consulta">
                 <div class="row">
 
-                    <div class="col-md-4">
+                    <div class="">
                         <label class="form-label">Diagnóstico</label>
                         <textarea name="diagnostico" class="form-control" rows="6">{{ respuesta.diagnostico|default_if_none:'' }}</textarea>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Tratamiento</label>
-                        <textarea name="tratamiento" class="form-control" rows="6">{{ respuesta.tratamiento|default_if_none:'' }}</textarea>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Notas</label>
-                        <textarea name="notas" class="form-control" rows="6">{{ respuesta.notas|default_if_none:'' }}</textarea>
                     </div>
 
                 </div>
@@ -413,11 +403,16 @@
 
 
             <!-- TAB RECETA -->
-            <div class="tab-pane fade" id="receta">
-                <label class="form-label">Receta médica</label>
-                <textarea name="receta" class="form-control" rows="10">{{ respuesta.receta|default_if_none:'' }}</textarea>
-            </div>
+            <div class="tab-pane fade" id="receta" style="margin-top: 20px !important;">
+                <label class="form-label d-none">Receta médica</label>
+                <textarea name="receta" class="form-control d-none" rows="6">{{ respuesta.receta|default_if_none:'' }}</textarea>
 
+                <label class="form-label">Tratamiento</label>
+                <textarea name="tratamiento" class="form-control" rows="6">{{ respuesta.tratamiento|default_if_none:'' }}</textarea>
+
+                <label class="form-label">Notas</label>
+                <textarea name="notas" class="form-control" rows="6">{{ respuesta.notas|default_if_none:'' }}</textarea>
+            </div>
         </div>
 
         <div class="text-end mt-4">

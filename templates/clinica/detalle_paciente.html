@@ -15,7 +15,7 @@
                             <p>Diagnóstico: {{ c.respuesta.diagnostico|default:"—" }}</p>
                             <p>Tratamiento: {{ c.respuesta.tratamiento|default:"—" }}</p>
                             <p>Notas: {{ c.respuesta.notas|default:"—" }}</p>
-                            <p>Receta: {{ c.respuesta.receta|default:"—" }}</p>
+                            <p class="d-none">Receta: {{ c.respuesta.receta|default:"—" }}</p>
                             {% if c.respuesta.imagenes.all %}
                                 <div class="row">
                                     {% for img in c.respuesta.imagenes.all %}
