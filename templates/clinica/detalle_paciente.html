@@ -1,0 +1,40 @@
+{% if citas_anteriores %}
+    <div class="accordion mt-3" id="acordeonCitas">
+        {% for c in citas_anteriores %}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#cita{{ c.id }}">
+                        📅 {{ c.fecha }} — {{ c.motivo|default:"Sin motivo" }}
+                    </button>
+                </h2>
+                <div id="cita{{ c.id }}" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        {% if c.respuesta %}
+                            <p>Diagnóstico: {{ c.respuesta.diagnostico|default:"—" }}</p>
+                            <p>Tratamiento: {{ c.respuesta.tratamiento|default:"—" }}</p>
+                            <p>Notas: {{ c.respuesta.notas|default:"—" }}</p>
+                            <p class="d-none">Receta: {{ c.respuesta.receta|default:"—" }}</p>
+                            {% if c.respuesta.imagenes.all %}
+                                <div class="row">
+                                    {% for img in c.respuesta.imagenes.all %}
+                                        <div class="col-3 mb-3">
+                                            <img src="{{ img.imagen.url }}" class="img-fluid rounded border"
+                                                 style="cursor:pointer;" 
+                                                 onclick="window.open('{{ img.imagen.url }}', '_blank')">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted">No hubo respuesta para esta cita.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted mt-3">No existen citas anteriores.</p>
+{% endif %}

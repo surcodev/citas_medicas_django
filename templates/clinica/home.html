@@ -1,0 +1,231 @@
+{% extends "../base.html" %}
+{% load static %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+
+<style>
+    /* Animación de entrada */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tarjetas modernas */
+    .card-modern {
+        border: none;
+        border-radius: 18px;
+        padding: 22px;
+        background: white;
+        transition: all .25s ease;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.06);
+    }
+    .card-modern:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 8px 22px rgba(0,0,0,0.12);
+    }
+
+    /* Iconos circulares */
+    .circle-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: white;
+        transition: .2s;
+    }
+
+    .circle-icon:hover {
+        transform: scale(1.1);
+    }
+
+    /* Tabla moderna */
+    .table-modern tbody tr {
+        transition: .2s;
+    }
+    .table-modern tbody tr:hover {
+        background: #f5f7ff;
+        transform: scale(1.01);
+    }
+
+    .social-card {
+        border-radius: 18px;
+        transition: .25s;
+        padding: 22px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.06);
+    }
+    .social-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 6px 20px rgba(0,0,0,0.12);
+    }
+
+</style>
+
+<div class="py-4 fade-in px-5" style="">
+
+    <!-- TITULO -->
+    <h2 class="fw-bold mb-1">Buen día, Dra. Brunella Clarisa Raymundo Villalva!</h2>
+    <p class="mb-4 fs-5">Aquí está el resumen de su jornada</p>
+
+    <!-- TARJETAS SUPERIORES -->
+    <div class="row g-4">
+
+        <!-- Citas hoy -->
+        <div class="col-md-4">
+            <div class="card-modern">
+                <div class="d-flex align-items-center">
+                    <div class="circle-icon me-3" style="background-color: #068aa1;">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 fs-5">Agenda para hoy</p>
+                        <h2 class="fw-bold mb-0">{{ citas_hoy|length }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citas semana -->
+        <div class="col-md-4">
+            <div class="card-modern">
+                <div class="d-flex align-items-center">
+                    <div class="circle-icon me-3" style="background-color: #068aa1;">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 fs-5">Citas de la semana</p>
+                        <h2 class="fw-bold mb-0">{{ citas_semana|length }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Próxima cita -->
+        <div class="col-md-4">
+            <div class="card-modern">
+                <div class="d-flex align-items-center">
+                    <div class="circle-icon me-3" style="background-color: #068aa1;">
+                        <i class="bi bi-alarm"></i>
+                    </div>
+                    <div>
+                        <p class="mb-2 fs-5">Próxima cita</p>
+                        
+                        {% if proxima_cita %}
+                            <h5 class="fw-bold mb-0">{{ proxima_cita.hora }}</h5>
+                            <small class="text-muted">{{ proxima_cita.paciente.nombre }}</small>
+                        {% else %}
+                            <h5 class="fw-bold mb-0">Sin pendientes</h5>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN AGENDA DEL DÍA -->
+    <div class="mt-5 fade-in">
+        <h4 class="fw-bold mb-3">Agenda del día</h4>
+
+        {% if citas_hoy %}
+            <div class="card-modern">
+                <table class="table table-hover table-modern">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in citas_hoy %}
+                            <tr onclick="window.location.href='/clinica/atender_cita/{{ c.id }}/'" style="cursor: pointer;">
+                                <td class="fw-bold">{{ c.hora }}</td>
+                                <td>{{ c.paciente.nombre }}</td>
+                                <td>{{ c.motivo }}</td>
+                                <td>
+                                    {% if c.estado %}
+                                        <span class="badge bg-success">Completada</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Pendiente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">No hay citas programadas para hoy.</div>
+        {% endif %}
+    </div>
+
+    <!-- REDES SOCIALES -->
+    <div class="mt-5 fade-in">
+        <h4 class="fw-bold mb-3">Mis Redes Sociales</h4>
+
+        <div class="row g-4">
+
+           <div class="col-md-3">
+                <a href="https://www.facebook.com/p/Dra-Brunella-Raymundo-100094456022644/" 
+                target="_blank" 
+                class="text-decoration-none">
+                    <div class="text-center social-card" style="background-color: #D6F4FF;">
+                        <i class="bi bi-facebook fs-1 text-primary"></i>
+                        <h6 class="fw-bold mt-2 text-dark">Facebook</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+    <a href="https://www.instagram.com/dra_brunella_raymundo/" 
+       target="_blank" 
+       class="text-decoration-none">
+       
+        <div class="text-center social-card" style="background-color: #ffecd8;">
+            <i class="bi bi-instagram fs-1 text-danger"></i>
+            <h6 class="fw-bold mt-2 text-dark">Instagram</h6>
+        </div>
+
+    </a>
+</div>
+
+<div class="col-md-3">
+    <a href="https://www.linkedin.com/in/brunella-raymundo-villalva-74bb67b3/" 
+       target="_blank" 
+       class="text-decoration-none">
+       
+        <div class="text-center social-card" style="background-color: #DBEAFF;">
+            <i class="bi bi-linkedin fs-1 text-primary"></i>
+            <h6 class="fw-bold mt-2 text-dark">LinkedIn</h6>
+        </div>
+
+    </a>
+</div>
+
+<div class="col-md-3">
+    <a href="https://www.tiktok.com/@dra_brunella_raymundo" 
+       target="_blank" 
+       class="text-decoration-none">
+       
+        <div class="text-center social-card" style="background-color: #EDEDED;">
+            <i class="bi bi-tiktok fs-1 text-dark"></i>
+            <h6 class="fw-bold mt-2 text-dark">TikTok</h6>
+        </div>
+
+    </a>
+</div>
+
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

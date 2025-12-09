@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+<style>
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .card-link .card {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .card-link:hover .card {
+        background-color: #f1f3f3 !important;
+        transform: scale(1.03);
+        color: #1c536d;
+    }
+</style>
+
+<div class="container text-center" style="padding-top: 30px;">
+    <div style="font-weight: bold; font-size: 24px; margin-bottom: 30px;">
+        Módulo Centro de Costos
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-3 mb-4">
+            <div style="font-weight: bold; font-size: 18px; color: #000; margin-bottom: 10px;">
+                TUPAC AMARU
+            </div>
+            <a href="{% url 'centro_costos:home_ta' %}" class="card-link">
+                <div class="card h-100 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/centro_costos/gastos3.png' %}" alt="Gastos"
+                            style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Canta Callao -->
+        <div class="col-12 col-md-3 mb-4">
+            <div style="font-weight: bold; font-size: 18px; color: #000; margin-bottom: 10px;">
+                CANTA CALLAO
+            </div>
+            <a href="{% url 'centro_costos:home_cc' %}" class="card-link">
+                <div class="card h-100 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/centro_costos/gastos3.png' %}" alt="Gastos"
+                            style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {% for ng in ngs|slice:"2:" %}
+        <div class="col-12 col-md-3 mb-4">
+            <div class="" style="font-weight: bold; font-size: 18px; color: #000; margin-bottom: 10px;">
+                {{ ng.nombre }}
+            </div>
+            <a href="{{ ng.url }}" class="card-link">
+                <div class="card h-100 shadow-sm">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/centro_costos/gastos3.png' %}" alt="Gastos"
+                            style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5> <!-- Dejas vacío si no quieres título -->
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+
+
+
+        {% if request.user.role == 3 or request.user.role == 2 %}
+        <!-- <div class="col-6 col-md-3 mb-4">
+            <div class="mb-3" style="font-weight: bold; font-size: 20px; color: #E88700;">
+                Agregar nuevo
+            </div>
+            <a href="#" class="card-link" id="nuevo-gasto-btn" data-bs-toggle="modal" data-bs-target="#nuevoGastoModal">
+                <div class="h-100">
+                    <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <img src="{% static 'images/plus.png' %}" alt="Gastos"
+                            style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                    </div>
+                </div>
+            </a>
+        </div> -->
+        {% endif %}
+
+        <!-- Modal -->
+        <div class="modal fade" id="nuevoGastoModal" tabindex="-1" aria-labelledby="nuevoGastoModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header text-white" style="background-color: #E88700;">
+                        <h5 class="modal-title" id="nuevoGastoModalLabel">Agregar Nuevo Centro de Costo</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{% url 'centro_costos:agregar_nuevo_gasto' %}">
+                            {% csrf_token %}
+                            <div class="">
+                                <label for="id_nombre" class="form-label">Nombre</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn px-5 py-2"
+                                    style="background-color: #000; color: #fff;">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

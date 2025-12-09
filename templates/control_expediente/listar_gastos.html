@@ -1,0 +1,36 @@
+<h2>Gastos del Seguimiento: {{ seguimiento }}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Detalle</th>
+            <th>Sustento</th>
+            <th>PDF</th>
+            <th>Gastos (S/)</th>
+            <th>Gastos ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for gasto in gastos %}
+        <tr>
+            <td>{{ gasto.fecha }}</td>
+            <td>{{ gasto.detalle }}</td>
+            <td>{{ gasto.sustento }}</td>
+            <td>
+                {% if gasto.pdf %}
+                <a href="{{ gasto.pdf.url }}" target="_blank">Ver PDF</a>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>{{ gasto.gastos_soles }}</td>
+            <td>{{ gasto.gastos_dolares }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No hay gastos registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

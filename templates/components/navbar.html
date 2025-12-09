@@ -1,0 +1,187 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/navbar/admin.css' %}">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css" />
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css" />
+
+<style>
+    .dropdown .profile {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+.dropdown .profile:hover {
+    background-color: #fff; /* color de fondo al pasar el mouse */
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap');
+
+.logo {
+    display: flex;
+    align-items: center; /* centra verticalmente el logo y texto */
+    gap: 8px;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 42px;
+    width: auto;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centra verticalmente el texto */
+    line-height: 0.9; /* reduce espacio entre líneas */
+    margin-left: 6px;
+    transform: translateY(1px); /* leve ajuste óptico */
+}
+
+.logo-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+
+.logo-subtitle {
+    font-size: 0.58rem;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    margin-top: -5px; /* elimina espacio vertical */
+    text-align: center; /* centra el subtítulo respecto al título */
+}
+
+
+</style>
+
+<nav
+    class="{% if 'pacientes' in request.path %}nav-paciente{% elif 'seguimiento_expediente' in request.path %}nav-expediente{% elif 'concluido' in request.path %}nav-expediente-concluido{% else %}nav-default{% endif %}">
+
+    <div class="logo">
+        <a href="{% url 'clinica:home' %}" style="color: white; font-weight: bold;">
+            DERMATOLOGÍA CLÍNICA INTEGRAL
+        </a>
+    </div>
+
+    <ul class="navlinks h5">
+        <li>
+            <a href="{% url 'clinica:home' %}">Inicio</a>
+        </li>
+        <li>
+            <a href="{% url 'clinica:lista_pacientes' %}">Pacientes</a>
+        </li>
+        <li>
+            <a href="{% url 'clinica:lista_citas' %}">Citas Médicas</a>
+        </li>
+        <li>
+            <a href="{% url 'productivity:calendar' %}">Calendario</a>
+        </li>
+        <li class="d-none">
+            <a href="https://docs.google.com/spreadsheets/d/18Kx1Ag493T5e69ckHhNcsU-jeTAmY20so7cIfNF21rA/edit?gid=645865557#gid=645865557" target="_blank">Inventario</a>
+        </li>
+        <div class="d-none">
+            <li>
+                <a class="text-nowrap" href="#">Exp. General</a>
+            </li>
+            <li>
+                <a class="text-nowrap" href="#">Exp. Penal</a>
+            </li>
+            <li>
+                <a href="#">Trámites</a>
+            </li>
+            <li>
+                <a href="{% url 'clinica:lista_pacientes' %}">Partidas</a>
+            </li>
+            <li>
+                <a href="#">Costos</a>
+            </li>
+        </div>
+    </ul>
+
+
+    <div class="cart-profile">
+        <button type="button" class="dropdown-btn">
+            {% if request.user.is_authenticated %}
+                {% if request.user.foto_perfil %}
+                    <!-- Imagen personalizada (redonda con estilo forzado) -->
+                    <img src="{{ request.user.foto_perfil.url }}" 
+                        alt="avatar" 
+                        class="avatar w-10 h-10 object-cover border-2 border-indigo-500 hover:scale-105 transition-transform duration-200" 
+                        style="border-radius: 50%; width: 40px; height: 40px; object-fit: cover;" />
+                {% else %}
+                    <!-- Imagen por defecto (cuadrada) -->
+                    <img src="{% static 'images/login.png' %}" 
+                        alt="avatar" 
+                        class="avatar w-10 h-10 object-cover border-2 border-gray-300 hover:scale-105 transition-transform duration-200" />
+                {% endif %}
+            {% else %}
+                <!-- Usuario no autenticado (cuadrada) -->
+                <img src="{% static 'images/login.png' %}" 
+                    alt="avatar" 
+                    class="avatar w-10 h-10 object-cover border-2 border-gray-300 hover:scale-105 transition-transform duration-200" />
+            {% endif %}
+        </button>
+
+
+
+        <div class="dropdown">
+            <a href="{% url 'perfil_user' %}" class="profile">Mi Perfil</a>
+            <!-- Botón cerrar sesión con apariencia de enlace -->
+            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:none;">
+                {% csrf_token %}
+            </form>
+            <a href="#" class="profile"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            Cerrar sesión
+            </a>
+        </div>
+    </div>
+
+
+    <div class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+    </div>
+</nav>
+
+<div class="menubar">
+    <ul>
+        <li>
+            <a href="{% url 'clinica:home' %}">Inicio</a>
+        </li>
+        <li class="d-none">
+            <a href="{% url 'lista_usuarios' %}">Administración</a>
+        </li>
+        <li class="d-none">
+            <a href="#">
+                Registros</a>
+        </li>
+        <li>
+            <a href="{% url 'clinica:lista_pacientes' %}">Partidas</a>
+        </li>
+        <li>
+            <a href="#">Planos</a>
+        </li>
+        <li>
+            <a href="#">Expedientes</a>
+        </li>
+        <li>
+            <a href="#">Costos</a>
+        </li>
+        <li>
+            <a href="#">Trámites</a>
+        </li>
+    </ul>
+</div>
+
+<script src="{% static 'js/navbar/script.js' %}"></script>

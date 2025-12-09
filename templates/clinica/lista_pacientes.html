@@ -1,0 +1,1042 @@
+{% extends "base.html" %}
+{% block title %} Lista de pacientes {% endblock %}
+{% block body %}
+{% include "../components/navbar.html" %}
+
+<style>
+    label.form-label {
+        font-weight: 500;
+        color: #000;
+    }
+
+    .modal-content {
+        border-radius: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #E3F3EC !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 237, 237);
+    }
+    .form-select:focus {
+        border-color: #E3F3EC !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 237, 237);
+    }
+
+    .ver-pdf-btn:hover {
+        text-decoration: underline !important;
+    }
+
+    .table-bordered-gray {
+        border: 1px solid #000;
+        border-collapse: collapse;
+    }
+
+    .table-bordered-gray th,
+    .table-bordered-gray td {
+        border: 1px solid #000;
+    }
+
+/* Contenedor de tabs */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f8f9fa; /* fondo de la barra de tabs */
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+}
+
+/* Tabs individuales */
+.nav-tabs .nav-link {
+    border: none;
+    color: #495057;
+    margin-right: 0.2rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Hover sobre tabs */
+.nav-tabs .nav-link:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+/* Tab activo */
+.nav-tabs .nav-link.active {
+    background-color: #e9ecef; /* color de fondo para el seleccionado */
+    color: #000;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste del contenido del tab */
+.tab-content {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
+</style>
+
+<div style="text-align: center; margin-top: 20px;">
+    <div style="font-weight: bold; font-size: 24px; color: #26292E;">
+        LISTADO GENERAL DE PACIENTES
+    </div>
+</div>
+
+<div class="px-3 py-1" style="background-color: #F2FDFF;">
+    <!-- Sección de búsqueda -->
+                    <h5 class="mb-2">Utiliza los filtros para localizar el paciente&nbsp;&nbsp;<i class="bi bi-search"></i></h5>
+
+                    <div class="row mb-3">
+                        
+
+                        <!-- Partida -->
+                        <div class="col">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control filter-input" data-column="0">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">DNI</label>
+                            <input type="text" class="form-control filter-input" data-column="1">
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="col">
+                            <label class="form-label">TELÉFONO</label>
+                            <input type="text" class="form-control filter-input" data-column="2">
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="col">
+                            <label class="form-label">EMAIL</label>
+                            <input type="text" class="form-control filter-input" data-column="3">
+                        </div>
+
+                        <!-- Botón Limpiar Filtros -->
+                        <div class="col d-none">
+                            <label class="form-label" style="color: #fff;">Limpiar</label>
+                            <a href="{% url 'clinica:lista_pacientes' %}" id="clearFilters"
+                                class="form-control btn btn-secondary text-center"
+                                style="background-color: #0995AD; border: none; line-height: 25px;">Limpiar
+                                Filtros</a>
+                        </div>
+
+                        <div class="col d-none">
+                            <label class="form-label" style="color: #fff;">Excel</label>
+                            <button id="exportBtn" class="btn btn-success form-control btn btn-secondary text-center"
+                                style="background-color: #0995AD; line-height: 25px; border: none;">
+                                <i class="bi-file-earmark-excel"></i>
+                                Exportar excel
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Botón para abrir el modal de agregar -->
+                    <center>
+                        <button type="button" class="btn text-white"
+                            style="background-color: #0995AD; border: none;" data-bs-toggle="modal"
+                            data-bs-target="#pacienteModal">
+                            <i class="bi bi-plus-lg"></i> Agregar Nuevo Paciente
+                        </button>
+                    </center>
+</div>
+
+<div class="container mt-2" style="max-width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <!-- Tabla -->
+                    <div class="table-container" style="max-height: 65vh; overflow-y: auto; overflow-x: auto;">
+                        <table class="table table-hover table-bordered-gray" id="documentsTable">
+                            <thead style="position: sticky; top: 0; z-index: 1;">
+                                <tr style="background-color: #26292E !important;">
+                                    <th style="color: white;">NOMBRE</th>
+                                    <th style="color: white;">DNI</th>
+                                    <th style="color: white;">TELÉFONO</th>
+                                    <th style="color: white;">EMAIL</th>
+                                    <th style="color: white;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in pacientes %}
+                                <tr>
+                                    <td>{{ p.nombre|default:'' }}</td>
+                                    <td>{{ p.dni|default:'' }}</td>
+                                    <td>{{ p.telefono|default:'' }}</td>
+                                    <td>{{ p.email|default:'' }}</td>
+                                    <td class="d-none">
+                                        {% if p.pdf %}
+                                        <button type="button" style="background: none; border: none; color: 
+                                            #0995AD; cursor: pointer;" data-bs-toggle="modal"
+                                            data-bs-target="#pdfViewerModal" data-pdf-url="{{ p.pdf.url }}"
+                                            class="ver-pdf-btn">
+                                            <i class="bi bi-file-earmark-pdf-fill"></i> PDF <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        {% else %}
+                                         <div style="color: #afafaf">
+                                            &nbsp;<i class="bi bi-file-earmark-pdf-fill"></i> PDF <i class="bi bi-x-lg"></i>
+                                         </div>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm text-white me-2 btn-editar"
+                                                style="background-color: #000000;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editarPacienteModal"
+                                                data-id="{{ p.id }}"
+                                                data-nombre="{{ p.nombre|default_if_none:'' }}"
+                                                data-email="{{ p.email|default_if_none:'' }}"
+                                                data-dni="{{ p.dni|default_if_none:'' }}"
+                                                data-telefono="{{ p.telefono|default_if_none:'' }}"
+                                                data-direccion="{{ p.direccion|default_if_none:'' }}"
+                                                data-alergias="{{ p.alergias_conocidas|default_if_none:'' }}"
+                                                data-enfermedades="{{ p.emfermedades_previas|default_if_none:'' }}"
+                                                data-quirurgicos="{{ p.antecentes_quirurgicos|default_if_none:'' }}"
+                                                data-familiares="{{ p.antecedentes_familiares|default_if_none:'' }}"
+                                                data-medicamentos="{{ p.medicamentos_actuales|default_if_none:'' }}"
+                                                data-habitos="{{ p.habitos|default_if_none:'' }}"
+                                                data-relato="{{ p.relato_clinico|default_if_none:'' }}"
+                                                data-peso="{{ p.peso|default_if_none:'' }}"
+                                                data-altura="{{ p.altura|default_if_none:'' }}"
+                                                data-presion="{{ p.presion_arterial|default_if_none:'' }}"
+                                                data-cardiaca="{{ p.frecuencia_cardiaca|default_if_none:'' }}"
+                                                data-respiratoria="{{ p.frecuencia_respiratoria|default_if_none:'' }}"
+                                                data-temperatura="{{ p.temperatura|default_if_none:'' }}"
+                                                data-sangre="{{ p.tipo_de_sangre|default_if_none:'' }}"
+                                                data-descripcion-examen="{{ p.descripcion_examen_fisico|default_if_none:'' }}"
+                                                data-nombre_contacto_emergencia1="{{ p.nombre_contacto_emergencia1|default_if_none:'' }}"
+                                                data-telefono_contacto_emergencia1="{{ p.telefono_contacto_emergencia1|default_if_none:'' }}"
+                                                data-relacion_contacto_emergencia1="{{ p.relacion_contacto_emergencia1|default_if_none:'' }}"
+                                                data-nombre_contacto_emergencia2="{{ p.nombre_contacto_emergencia2|default_if_none:'' }}"
+                                                data-telefono_contacto_emergencia2="{{ p.telefono_contacto_emergencia2|default_if_none:'' }}"
+                                                data-relacion_contacto_emergencia2="{{ p.relacion_contacto_emergencia2|default_if_none:'' }}"
+                                                data-nombre_contacto_emergencia3="{{ p.nombre_contacto_emergencia3|default_if_none:'' }}"
+                                                data-telefono_contacto_emergencia3="{{ p.telefono_contacto_emergencia3|default_if_none:'' }}"
+                                                data-relacion_contacto_emergencia3="{{ p.relacion_contacto_emergencia3|default_if_none:'' }}">
+                                                <i class="bi bi-pencil-square"></i> Editar
+                                            </button>
+
+                                            <a href="{% url 'clinica:detalle_paciente' p.id %}" 
+                                            class="btn btn-sm text-white d-none" 
+                                            style="background-color:#555;" title="Historial">
+                                                <i class="bi bi-eye"></i> Ver historial
+                                            </a>
+
+                                            <button type="button" class="btn btn-sm text-white me-2" 
+                                                    style="background-color:#555;" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#historialModal" 
+                                                    data-id="{{ p.id }}">
+                                                <i class="bi bi-eye"></i> Ver Historial
+                                            </button>
+
+                                            <a href="{% url 'clinica:eliminar_paciente' p.id %}"
+                                                class="btn btn-sm text-white btnEliminar me-2 btnEliminar"
+                                                style="background-color: #0995AD;" title="Eliminar">
+                                                <i class="bi bi-trash3"></i> Eliminar
+                                            </a>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historialModalLabel">Historial de Citas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="accordionHistorial">
+          <!-- Aquí se llenará dinámicamente con JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Modal para editar paciente -->
+<div class="modal fade" id="editarPacienteModal" tabindex="-1" aria-labelledby="editarPacienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header text-white" style="background-color: #0995AD;">
+                <h5 class="modal-title">Editar datos del Paciente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form method="POST" action="{% url 'clinica:editar_paciente' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_id" name="id">
+
+                    <!-- NAV TABS -->
+                    <ul class="nav nav-tabs mb-3" id="editPacienteTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tabDatos">
+                                Datos Personales
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tabAnamnesis">
+                                Anamnesis
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tabExamen">
+                                Examen Físico
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tabEmergencia">
+                                Contactos de Emergencia
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tabArchivos">
+                                Archivos
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        <!-- DATOS PERSONALES -->
+                        <div class="tab-pane fade show active" id="tabDatos">
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" id="edit_nombre" name="nombre" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="edit_email" name="email" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">DNI</label>
+                                    <input type="text" id="edit_dni" name="dni" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="text" id="edit_telefono" name="telefono" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" id="edit_direccion" name="direccion" class="form-control">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ANAMNESIS -->
+                        <div class="tab-pane fade" id="tabAnamnesis">
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Alergias</label>
+                                    <textarea id="edit_alergias" name="alergias_conocidas" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Enfermedades Previas</label>
+                                    <textarea id="edit_enfermedades" name="emfermedades_previas" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Antecedentes Quirúrgicos</label>
+                                    <textarea id="edit_quirurgicos" name="antecentes_quirurgicos" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Antecedentes Familiares</label>
+                                    <textarea id="edit_familiares" name="antecedentes_familiares" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Medicamentos Actuales</label>
+                                    <textarea id="edit_medicamentos" name="medicamentos_actuales" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Hábitos</label>
+                                    <textarea id="edit_habitos" name="habitos" class="form-control"></textarea>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label">Relato Clínico</label>
+                                    <textarea id="edit_relato" name="relato_clinico" class="form-control"></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- EXAMEN FISICO -->
+                        <div class="tab-pane fade" id="tabExamen">
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Peso</label>
+                                    <input type="text" id="edit_peso" name="peso" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Altura</label>
+                                    <input type="text" id="edit_altura" name="altura" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Presión Arterial</label>
+                                    <input type="text" id="edit_presion" name="presion_arterial" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Frecuencia Cardíaca</label>
+                                    <input type="text" id="edit_cardiaca" name="frecuencia_cardiaca" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Frecuencia Respiratoria</label>
+                                    <input type="text" id="edit_respiratoria" name="frecuencia_respiratoria" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Temperatura</label>
+                                    <input type="text" id="edit_temperatura" name="temperatura" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Tipo de Sangre</label>
+                                    <select id="edit_sangre" name="tipo_de_sangre" class="form-control">
+                                        <option value="">Seleccione ...</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label">Descripción Examen Físico</label>
+                                    <textarea id="edit_descripcion_examen" name="descripcion_examen_fisico" class="form-control"></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- CONTACTOS DE EMERGENCIA -->
+                        <div class="tab-pane fade" id="tabEmergencia">
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label>Contacto 1</label>
+                                    <input type="text" id="edit_contacto1" name="nombre_contacto_emergencia1" class="form-control" placeholder="Nombre">
+                                    <input type="text" id="edit_contacto1_tel" name="telefono_contacto_emergencia1" class="form-control mt-1" placeholder="Teléfono">
+                                    <input type="text" id="edit_contacto1_rel" name="relacion_contacto_emergencia1" class="form-control mt-1" placeholder="Relación">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label>Contacto 2</label>
+                                    <input type="text" id="edit_contacto2" name="nombre_contacto_emergencia2" class="form-control" placeholder="Nombre">
+                                    <input type="text" id="edit_contacto2_tel" name="telefono_contacto_emergencia2" class="form-control mt-1" placeholder="Teléfono">
+                                    <input type="text" id="edit_contacto2_rel" name="relacion_contacto_emergencia2" class="form-control mt-1" placeholder="Relación">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label>Contacto 3</label>
+                                    <input type="text" id="edit_contacto3" name="nombre_contacto_emergencia3" class="form-control" placeholder="Nombre">
+                                    <input type="text" id="edit_contacto3_tel" name="telefono_contacto_emergencia3" class="form-control mt-1" placeholder="Teléfono">
+                                    <input type="text" id="edit_contacto3_rel" name="relacion_contacto_emergencia3" class="form-control mt-1" placeholder="Relación">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ARCHIVOS -->
+                        <div class="tab-pane fade" id="tabArchivos">
+                            <label class="form-label">Subir imágenes o PDFs</label>
+                            <input type="file" name="archivos" id="edit_archivos" class="form-control" multiple>
+                            <small class="text-muted">Puedes subir múltiples imágenes o PDFs.</small>
+
+                            <hr>
+
+                            <h6 class="mt-2">Archivos subidos</h6>
+                            <div id="archivosLista" class="row g-3"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn px-5 py-2 btnActualizar" style="background-color: #000000; color: #fff;">
+                            Guardar
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal para agregar nuevo paciente -->
+<div class="modal fade" id="pacienteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background-color: #0995AD;">
+        <h5 class="modal-title">Agregar Nuevo Paciente</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="POST" action="{% url 'clinica:lista_pacientes' %}">
+          {% csrf_token %}
+
+          <!-- TABS -->
+          <ul class="nav nav-tabs mb-3">
+                <li class="nav-item">
+                <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDatosNuevo">
+                    Datos Personales
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAnamnesisNuevo">
+                    Anamnesis
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabExamenNuevo">
+                    Examen Físico
+                </button>
+                </li>
+
+                <li class="nav-item">
+                <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tabEmergenciaNuevo">
+                    Contactos
+                </button>
+                </li>
+            </ul>
+
+          <!-- CONTENIDO DE LOS TABS -->
+          <div class="tab-content">
+
+            <!-- DATOS PERSONALES -->
+            <div class="tab-pane fade show active" id="tabDatosNuevo">
+              <div class="row g-3" style="margin-top: 5px !important;">
+                <div class="col-md-6">
+                  <label class="fw-bold">Nombre</label>
+                  {{ form.nombre }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Correo Electrónico (opcional)</label>
+                  {{ form.email }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">DNI</label>
+                  {{ form.dni }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Teléfono</label>
+                  {{ form.telefono }}
+                </div>
+
+                <div class="col-md-12">
+                  <label class="fw-bold">Dirección</label>
+                  {{ form.direccion }}
+                </div>
+              </div>
+            </div>
+
+            <!-- ANAMNESIS -->
+            <div class="tab-pane fade" id="tabAnamnesisNuevo">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="fw-bold">Alergias</label>
+                  {{ form.alergias_conocidas }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Enfermedades Previas</label>
+                  {{ form.emfermedades_previas }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Antecedentes Quirúrgicos</label>
+                  {{ form.antecentes_quirurgicos }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Antecedentes Familiares</label>
+                  {{ form.antecedentes_familiares }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Medicamentos</label>
+                  {{ form.medicamentos_actuales }}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="fw-bold">Hábitos</label>
+                  {{ form.habitos }}
+                </div>
+
+                <div class="col-md-12">
+                  <label class="fw-bold">Relato Clínico</label>
+                  {{ form.relato_clinico }}
+                </div>
+              </div>
+            </div>
+
+            <!-- EXAMEN FÍSICO -->
+            <div class="tab-pane fade" id="tabExamenNuevo">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                <label class="form-label">Edad</label>
+                {{ form.edad }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Peso (kg)</label>
+                {{ form.peso }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Altura (m)</label>
+                {{ form.altura }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Presión Arterial (mmHg)</label>
+                {{ form.presion_arterial }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Frecuencia Cardíaca (lpm)</label>
+                {{ form.frecuencia_cardiaca }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Frecuencia Respiratoria (rpm)</label>
+                {{ form.frecuencia_respiratoria }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Temperatura (°C)</label>
+                {{ form.temperatura }}
+                </div>
+
+                <div class="col-md-8">
+                <label class="form-label">Tipo de Sangre</label>
+                {{ form.tipo_de_sangre }}
+                </div>
+
+                <div class="col-md-12">
+                <label class="form-label">Descripción Examen Físico</label>
+                {{ form.descripcion_examen_fisico }}
+                </div>
+
+            </div>
+            </div>
+
+
+            <!-- CONTACTOS -->
+            <div class="tab-pane fade" id="tabEmergenciaNuevo">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 1</label>
+                {{ form.nombre_contacto_emergencia1 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 1</label>
+                {{ form.telefono_contacto_emergencia1 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 1</label>
+                {{ form.relacion_contacto_emergencia1 }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 2</label>
+                {{ form.nombre_contacto_emergencia2 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 2</label>
+                {{ form.telefono_contacto_emergencia2 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 2</label>
+                {{ form.relacion_contacto_emergencia2 }}
+                </div>
+
+                <div class="col-md-4">
+                <label class="form-label">Nombre Contacto 3</label>
+                {{ form.nombre_contacto_emergencia3 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Teléfono Contacto 3</label>
+                {{ form.telefono_contacto_emergencia3 }}
+                </div>
+                <div class="col-md-4">
+                <label class="form-label">Relación Contacto 3</label>
+                {{ form.relacion_contacto_emergencia3 }}
+                </div>
+
+            </div>
+            </div>
+
+          </div>
+
+          <!-- BOTÓN GUARDAR -->
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-dark px-5 btnGuardar">
+              Guardar
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filters = document.querySelectorAll(".filter-input");
+    const table = document.getElementById("documentsTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    filters.forEach(input => {
+        input.addEventListener("keyup", function () {
+            filterTable();
+        });
+    });
+
+    function filterTable() {
+        rows.forEach(row => {
+            let visible = true;
+
+            filters.forEach(input => {
+                const columnIndex = input.dataset.column;
+                const filterValue = input.value.toLowerCase();
+                const cellText = row.children[columnIndex].textContent.toLowerCase();
+
+                if (!cellText.includes(filterValue)) {
+                    visible = false;
+                }
+            });
+
+            row.style.display = visible ? "" : "none";
+        });
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const editarModal = document.getElementById("editarPacienteModal");
+
+    // CUANDO SE ABRE EL MODAL — CARGA LOS DATOS Y LOS ARCHIVOS
+    editarModal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
+
+        // ID del paciente
+        const id = button.getAttribute("data-id");
+
+        // Primero carga los campos del formulario (data-attributes)
+        document.getElementById("edit_id").value = id;
+        document.getElementById("edit_nombre").value = button.getAttribute("data-nombre");
+        document.getElementById("edit_email").value = button.getAttribute("data-email");
+        document.getElementById("edit_dni").value = button.getAttribute("data-dni");
+        document.getElementById("edit_telefono").value = button.getAttribute("data-telefono");
+        document.getElementById("edit_direccion").value = button.getAttribute("data-direccion");
+
+        document.getElementById("edit_alergias").value = button.getAttribute("data-alergias");
+        document.getElementById("edit_enfermedades").value = button.getAttribute("data-enfermedades");
+        document.getElementById("edit_quirurgicos").value = button.getAttribute("data-quirurgicos");
+        document.getElementById("edit_familiares").value = button.getAttribute("data-familiares");
+        document.getElementById("edit_medicamentos").value = button.getAttribute("data-medicamentos");
+        document.getElementById("edit_habitos").value = button.getAttribute("data-habitos");
+        document.getElementById("edit_relato").value = button.getAttribute("data-relato");
+
+        document.getElementById("edit_peso").value = button.getAttribute("data-peso");
+        document.getElementById("edit_altura").value = button.getAttribute("data-altura");
+        document.getElementById("edit_presion").value = button.getAttribute("data-presion");
+        document.getElementById("edit_cardiaca").value = button.getAttribute("data-cardiaca");
+        document.getElementById("edit_respiratoria").value = button.getAttribute("data-respiratoria");
+        document.getElementById("edit_temperatura").value = button.getAttribute("data-temperatura");
+        document.getElementById("edit_sangre").value = button.getAttribute("data-sangre");
+        document.getElementById("edit_descripcion_examen").value = button.getAttribute("data-descripcion-examen");
+        document.getElementById("edit_contacto1").value = button.getAttribute("data-nombre_contacto_emergencia1");
+        document.getElementById("edit_contacto1_tel").value = button.getAttribute("data-telefono_contacto_emergencia1");
+        document.getElementById("edit_contacto1_rel").value = button.getAttribute("data-relacion_contacto_emergencia1");
+        document.getElementById("edit_contacto2").value = button.getAttribute("data-nombre_contacto_emergencia2");
+        document.getElementById("edit_contacto2_tel").value = button.getAttribute("data-telefono_contacto_emergencia2");
+        document.getElementById("edit_contacto2_rel").value = button.getAttribute("data-relacion_contacto_emergencia2");
+        document.getElementById("edit_contacto3").value = button.getAttribute("data-nombre_contacto_emergencia3");
+        document.getElementById("edit_contacto3_tel").value = button.getAttribute("data-telefono_contacto_emergencia3");
+        document.getElementById("edit_contacto3_rel").value = button.getAttribute("data-relacion_contacto_emergencia3");
+
+        // AHORA SÍ — cargar archivos mediante fetch()
+        cargarPaciente(id);
+    });
+});
+
+
+function cargarPaciente(id) {
+    console.log("Ejecutando fetch...");
+
+    fetch(`/clinica/obtener_paciente/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("DATA RECIBIDA:", data);
+
+            let cont = document.getElementById("archivosLista");
+            cont.innerHTML = "";
+
+            data.archivos.forEach(file => {
+                const esImagen = file.url.match(/\.(jpg|jpeg|png|gif)$/i);
+
+                cont.innerHTML += `
+                    <div class="col-md-3 text-center">
+                        <div class="border p-2 rounded">
+                            ${
+                                esImagen
+                                ? `<img src="${file.url}" class="img-fluid mb-2 rounded" style="max-height:120px;">`
+                                : `<i class="bi bi-file-earmark-pdf" style="font-size:40px;color:red"></i>`
+                            }
+                            <p class="small">${file.nombre}</p>
+                            <a class="btn btn-sm btn-primary" href="${file.url}" target="_blank">Ver</a>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+}
+
+
+
+
+const historialModal = document.getElementById('historialModal');
+
+historialModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const pacienteId = button.getAttribute('data-id');
+
+    const container = historialModal.querySelector('#accordionHistorial');
+    container.innerHTML = ''; // Limpiar contenido previo
+
+    fetch(`/clinica/historial_paciente/${pacienteId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.citas.length === 0) {
+                container.innerHTML = '<p class="text-muted mt-3">No hay citas completadas.</p>';
+                return;
+            }
+
+            data.citas.forEach(c => {
+                const item = document.createElement('div');
+                item.classList.add('accordion-item');
+
+                // Generar HTML de imágenes si existen
+                let imagenesHTML = '';
+                if (c.respuesta.imagenes.length > 0) {
+                    imagenesHTML = '<div class="row mt-2">';
+                    c.respuesta.imagenes.forEach(url => {
+                        imagenesHTML += `
+                            <div class="col-3 mb-3">
+                                <img src="${url}" class="img-fluid rounded border" style="cursor:pointer;" onclick="window.open('${url}','_blank')">
+                            </div>
+                        `;
+                    });
+                    imagenesHTML += '</div>';
+                } else {
+                    imagenesHTML = '<p class="text-muted mt-2">No hay imágenes.</p>';
+                }
+
+                item.innerHTML = `
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#cita${c.id}">
+                            📅 ${c.fecha} — ${c.motivo || "Sin motivo"}
+                        </button>
+                    </h2>
+                    <div id="cita${c.id}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <p><strong>Diagnóstico:</strong> ${c.respuesta.diagnostico || '—'}</p>
+                            <p><strong>Tratamiento:</strong> ${c.respuesta.tratamiento || '—'}</p>
+                            <p><strong>Notas:</strong> ${c.respuesta.notas || '—'}</p>
+                            <div><strong>Imágenes:</strong> ${imagenesHTML}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        })
+        .catch(err => {
+            console.error('Error al cargar el historial:', err);
+            container.innerHTML = '<p class="text-danger mt-3">Error al cargar el historial.</p>';
+        });
+});
+
+
+
+
+
+// BTN GUARDAR
+(function () {
+    const botonesGuardar = document.querySelectorAll('.btnGuardar');
+
+    botonesGuardar.forEach(boton => {
+        boton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const form = this.closest('form');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: "success",
+                title: "Registro guardado correctamente"
+            }).then(() => {
+                form.submit();
+            });
+
+        });
+    });
+})();
+
+
+
+// BTN ACTUALIZAR
+(function () {
+    const botonesGuardar = document.querySelectorAll('.btnActualizar');
+
+    botonesGuardar.forEach(boton => {
+        boton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const form = this.closest('form');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: "success",
+                title: "Registro actualizado correctamente"
+            }).then(() => {
+                form.submit();
+            });
+
+        });
+    });
+})();
+
+
+
+// BTN ELIMINAR
+(function () {
+const botonesEliminar = document.querySelectorAll('.btnEliminar');
+
+botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita que el enlace se siga inmediatamente
+
+                Swal.fire({
+                    title: '¿Estás seguro de eliminar?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#BF0909',
+                    cancelButtonColor: '#6F6F6F',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirige al href del botón
+                        window.location.href = this.href;
+                    }
+                });
+            });
+        });
+    })();
+
+
+</script>
+
+
+{% endblock %}

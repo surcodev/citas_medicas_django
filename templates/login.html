@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Iniciar sesión
+{% endblock %}
+
+{% block body %}
+
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .container-login {
+        display: flex;
+        height: 100vh;
+        width: 100%;
+    }
+
+    /* IZQUIERDA (formulario) */
+    .left-panel {
+        width: 40%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 40px;
+    }
+
+    .login-card {
+        width: 380px;
+        padding: 35px;
+        border-radius: 12px;
+    }
+
+    /* DERECHA (imagen completa) */
+    .right-panel {
+        width: 60%;
+        height: 100%;
+    }
+
+    .right-panel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Footer oculto porque en la imagen no aparece */
+    footer {
+        display: none;
+    }
+
+    /* Responsive */
+    @media(max-width: 900px) {
+        .container-login {
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .left-panel, .right-panel {
+            width: 100%;
+            height: auto;
+        }
+        .right-panel img {
+            height: 350px;
+        }
+    }
+
+    .forgot-link {
+        color: #0D1028;
+        text-decoration: none;
+    }
+
+    .forgot-link:hover {
+        font-weight: bold;
+        color: #4f46e5;
+    }
+</style>
+
+<div class="container-login">
+
+    <!-- PANEL IZQUIERDO -->
+    <div class="left-panel">
+
+        <h3 style="font-weight: bold; margin-bottom: 25px;">
+            DERMATOLOGÍA CLÍNICA INTEGRAL
+        </h3>
+
+        <div class="card login-card shadow">
+
+            <div class="text-center mb-4">
+                <img src="{% static 'images/login_base.png' %}" alt="Logo" style="height: 90px;">
+                <p class="mt-2" style="font-weight:bold; font-size: 20px;">Inicia sesión</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <label class="fw-bold">Nombre de usuario</label>
+                <input type="text" name="username" class="form-control mb-3" required>
+
+                <label class="fw-bold">Contraseña</label>
+                <div class="password-wrapper mb-3">
+                    <input type="password" id="passwordField" name="password" class="form-control" required>
+                </div>
+
+                <div class="text-end mb-3">
+                    <a href="{% url 'forgot_password' %}" class="forgot-link">¿Olvidó su contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn w-100 text-white" style="background-color: #4f46e5;">
+                    Continuar →
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="right-panel">
+        <img src="{% static 'images/derma_bg.png' %}" alt="Dermatología">
+    </div>
+</div>
+
+{% endblock %}

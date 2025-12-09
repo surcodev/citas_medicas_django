@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% block title %} Atender cita {% endblock %}
+{% block body %}
+{% include "../components/navbar.html" %}
+
+<style>
+    .image-container {
+    position: relative;
+}
+
+.overlay-controls {
+    display: flex;
+    gap: 4px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.image-container:hover .overlay-controls {
+    opacity: 1;
+}
+
+.expediente-header {
+    background:  #0995AD;
+    color: white;
+    padding: 16px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.expediente-body {
+    background-color: #F2FDFF;
+    border-radius: 0 0 10px 10px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.info-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #0995AD;
+}
+
+.card-expediente {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.info-label {
+    font-size: 13px;
+    font-weight: 800;   /* 🔥 títulos en negrita fuerte */
+    color: #374151;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 16px;    /* ✅ texto más grande */
+    font-weight: 500;
+    color: #111827;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #4b5563;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    background: #f3f4f6;
+    color: #000;
+}
+
+/* ✅ TAB ACTIVO */
+.nav-tabs .nav-link.active {
+    background: #f3f4f6;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 -3px 8px rgba(79, 70, 229, 0.25);
+}
+
+
+</style>
+
+<div class="container mt-3">
+
+    <h4 class="fw-bold">Atender Consulta Médica</h4>
+
+    <!-- DATOS PRINCIPALES -->
+   <div class="card card-expediente mb-4">
+        <div class="expediente-header">
+            DATOS DEL PACIENTE
+        </div>
+
+        <div class="expediente-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <div class="info-label">NOMBRE DEL PACIENTE</div>
+                    <div class="">{{ paciente.nombre }}</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">DNI</div>
+                    <div class="">{{ paciente.dni }}</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">TELÉFONO</div>
+                    <div class="">{{ paciente.telefono }}</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">DIRECCIÓN</div>
+                    <div class="">{{ paciente.direccion }}</div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- NAV -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anamnesis">Anamnesis</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#examen">Examen físico</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactos">Contactos de emergencia</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anteriores">Citas anteriores</button></li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#consulta">Diagnóstico</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#receta">Tratamiento</button></li>
+    </ul>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        <div class="tab-content">
+
+            <!-- TAB CONSULTA -->
+            <div class="tab-pane fade show active" id="consulta">
+                <div class="row">
+
+                    <div class="">
+                        <label class="form-label">Diagnóstico</label>
+                        <textarea name="diagnostico" class="form-control" rows="6">{{ respuesta.diagnostico|default_if_none:'' }}</textarea>
+                    </div>
+
+                </div>
+
+                <!-- Subir múltiples imágenes -->
+                <div class="col-md-12 mt-3">
+                    <label class="form-label">Subir imágenes / archivos</label>
+                    <input type="file" name="imagenes"  id="input-imagenes" class="form-control" multiple>
+                    <div id="preview-imagenes" class="mt-3 d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Mostrar imágenes subidas -->
+                <div class="mt-3">
+                    <h6>Imágenes cargadas:</h6>
+                    <div class="row">
+                    {% for img in respuesta.imagenes.all %}
+                        <div class="col-3 mb-3">
+                            <div class="image-container position-relative">
+
+                                <!-- Imagen -->
+                                <img src="{{ img.imagen.url }}" class="img-fluid rounded border">
+
+                                <!-- Controles -->
+                                <div class="overlay-controls">
+                                    <a href="{{ img.imagen.url }}" target="_blank" class="btn btn-sm btn-light me-1">
+                                        👁
+                                    </a>
+
+                                    <a href="{% url 'clinica:eliminar_imagen_respuesta' img.id %}" 
+                                    class="btn btn-sm btn-danger">
+                                        🗑
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB ANAMNESIS -->
+            <div class="tab-pane fade" id="anamnesis">
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Alergias</label>
+                        <input name="alergias_conocidas" class="form-control" value="{{ paciente.alergias_conocidas|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Enfermedades previas</label>
+                        <input name="emfermedades_previas" class="form-control" value="{{ paciente.emfermedades_previas|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label">Antecedentes quirúrgicos</label>
+                        <input name="antecentes_quirurgicos" class="form-control" value="{{ paciente.antecentes_quirurgicos|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label">Antecedentes familiares</label>
+                        <input name="antecedentes_familiares" class="form-control" value="{{ paciente.antecedentes_familiares|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label">Medicamentos actuales</label>
+                        <input name="medicamentos_actuales" class="form-control" value="{{ paciente.medicamentos_actuales|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label">Hábitos</label>
+                        <input name="habitos" class="form-control" value="{{ paciente.habitos|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-12 mt-2">
+                        <label class="form-label">Relato clínico</label>
+                        <textarea name="relato_clinico" class="form-control" rows="4">{{ paciente.relato_clinico|default_if_none:'' }}</textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB EXAMEN -->
+            <div class="tab-pane fade" id="examen">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <label>Peso</label>
+                        <input name="peso" class="form-control" value="{{ paciente.peso|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Altura</label>
+                        <input name="altura" class="form-control" value="{{ paciente.altura|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Temperatura</label>
+                        <input name="temperatura" class="form-control" value="{{ paciente.temperatura|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-4 mt-2">
+                        <label>Presión arterial</label>
+                        <input name="presion_arterial" class="form-control" value="{{ paciente.presion_arterial|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-4 mt-2">
+                        <label>Frecuencia cardíaca</label>
+                        <input name="frecuencia_cardiaca" class="form-control" value="{{ paciente.frecuencia_cardiaca|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-4 mt-2">
+                        <label>Frecuencia respiratoria</label>
+                        <input name="frecuencia_respiratoria" class="form-control" value="{{ paciente.frecuencia_respiratoria|default_if_none:'' }}">
+                    </div>
+
+                    <div class="col-md-12 mt-2">
+                        <label>Descripción examen físico</label>
+                        <textarea name="descripcion_examen_fisico" class="form-control">{{ paciente.descripcion_examen_fisico|default_if_none:'' }}</textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB CONTACTOS -->
+            <div class="tab-pane fade" id="contactos">
+                <div class="row">
+
+                    <h6>Contacto 1</h6>
+                    <div class="col-md-4"><input name="nombre_contacto_emergencia1" class="form-control" value="{{ paciente.nombre_contacto_emergencia1|default_if_none:'' }}" placeholder="nombre"></div>
+                    <div class="col-md-4"><input name="telefono_contacto_emergencia1" class="form-control" value="{{ paciente.telefono_contacto_emergencia1|default_if_none:'' }}" placeholder="teléfono"></div>
+                    <div class="col-md-4"><input name="relacion_contacto_emergencia1" class="form-control" value="{{ paciente.relacion_contacto_emergencia1|default_if_none:'' }}" placeholder="relación con el paciente"></div>
+
+                    <h6 class="mt-3">Contacto 2</h6>
+                    <div class="col-md-4"><input name="nombre_contacto_emergencia2" class="form-control" value="{{ paciente.nombre_contacto_emergencia2|default_if_none:'' }}" placeholder="nombre"></div>
+                    <div class="col-md-4"><input name="telefono_contacto_emergencia2" class="form-control" value="{{ paciente.telefono_contacto_emergencia2|default_if_none:'' }}" placeholder="teléfono"></div>
+                    <div class="col-md-4"><input name="relacion_contacto_emergencia2" class="form-control" value="{{ paciente.relacion_contacto_emergencia2|default_if_none:'' }}" placeholder="relación con el paciente"></div>
+
+                    <h6 class="mt-3">Contacto 3</h6>
+                    <div class="col-md-4"><input name="nombre_contacto_emergencia3" class="form-control" value="{{ paciente.nombre_contacto_emergencia3|default_if_none:'' }}" placeholder="nombre"></div>
+                    <div class="col-md-4"><input name="telefono_contacto_emergencia3" class="form-control" value="{{ paciente.telefono_contacto_emergencia3|default_if_none:'' }}" placeholder="teléfono"></div>
+                    <div class="col-md-4"><input name="relacion_contacto_emergencia3" class="form-control" value="{{ paciente.relacion_contacto_emergencia3|default_if_none:'' }}" placeholder="relación con el paciente"></div>
+
+                </div>
+            </div>
+
+            <!-- TAB CITAS ANTERIORES -->
+            <div class="tab-pane fade" id="anteriores">
+
+                {% if citas_anteriores %}
+                    <div class="accordion mt-3" id="acordeonCitas">
+
+                        {% for c in citas_anteriores %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#cita{{ c.id }}">
+                                        📅 {{ c.fecha }} — {{ c.motivo|default:"Sin motivo" }}
+                                    </button>
+                                </h2>
+
+                                <div id="cita{{ c.id }}" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+
+                                        {% if c.respuesta %}
+                                            <div class="row">
+
+                                                <div class="col-md-4">
+                                                    <label class="fw-bold">Diagnóstico</label>
+                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.diagnostico|default:"—" }}</div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="fw-bold">Tratamiento</label>
+                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.tratamiento|default:"—" }}</div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="fw-bold">Notas</label>
+                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.notas|default:"—" }}</div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3">
+                                                    <label class="fw-bold">Receta</label>
+                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.receta|default:"—" }}</div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3">
+                                                    <label class="fw-bold">Imágenes</label>
+                                                    <div class="row">
+                                                        {% for img in c.respuesta.imagenes.all %}
+                                                            <div class="col-3 mb-3">
+                                                                <img src="{{ img.imagen.url }}"
+                                                                    class="img-fluid rounded border"
+                                                                    style="cursor: pointer;"
+                                                                    onclick="window.open('{{ img.imagen.url }}', '_blank')">
+                                                            </div>
+                                                        {% empty %}
+                                                            <p class="text-muted">Sin imágenes.</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        {% else %}
+                                            <p class="text-muted">No hubo respuesta para esta cita.</p>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                
+                {% else %}
+                    <p class="text-muted mt-3">No existen citas anteriores.</p>
+                {% endif %}
+
+            </div>
+
+
+            <!-- TAB RECETA -->
+            <div class="tab-pane fade" id="receta" style="margin-top: 20px !important;">
+                <label class="form-label d-none">Receta médica</label>
+                <textarea name="receta" class="form-control d-none" rows="6">{{ respuesta.receta|default_if_none:'' }}</textarea>
+
+                <label class="form-label">Tratamiento</label>
+                <textarea name="tratamiento" class="form-control" rows="6">{{ respuesta.tratamiento|default_if_none:'' }}</textarea>
+
+                <label class="form-label">Notas</label>
+                <textarea name="notas" class="form-control" rows="6">{{ respuesta.notas|default_if_none:'' }}</textarea>
+            </div>
+        </div>
+
+        <div class="text-end mt-4">
+            <button class="btn px-4" style="background-color: #000; color: #fff;">Guardar consulta</button>
+            {% if cita.estado %}
+            <a href="{% url 'clinica:generar_pdf_cita' cita.id %}" 
+            class="btn btn-danger" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+            {% endif %}
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+document.getElementById("input-imagenes").addEventListener("change", function(e) {
+    const preview = document.getElementById("preview-imagenes");
+    preview.innerHTML = ""; // limpiar previews anteriores
+
+    [...e.target.files].forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+
+        const div = document.createElement("div");
+        div.classList.add("position-relative");
+
+        div.innerHTML = `
+            <img src="${url}" class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;">
+            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 remove-img" data-index="${index}">
+                X
+            </button>
+        `;
+
+        preview.appendChild(div);
+    });
+
+    // Botones de eliminar preview
+    document.querySelectorAll(".remove-img").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const i = this.getAttribute("data-index");
+
+            // Eliminar solo del input sin recargar página
+            const dt = new DataTransfer();
+            const input = document.getElementById("input-imagenes");
+
+            [...input.files].forEach((file, index) => {
+                if (index != i) dt.items.add(file);
+            });
+
+            input.files = dt.files;
+
+            // Volver a renderizar
+            input.dispatchEvent(new Event("change"));
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,753 @@
+{% extends "base.html" %}
+
+{% block title %} Lista de Expedientes {% endblock %}
+
+{% block body %}
+{% include "../components/navbar.html" %}
+<style>
+    label.form-label {
+        font-weight: 500;
+    }
+
+    .modal-content {
+        border-radius: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #DFE1FF !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 228, 255);
+    }
+    .form-select:focus {
+        border-color: #DFE1FF !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 228, 255);
+    }
+
+    .table-bordered-gray {
+        border: 1px solid #000;
+        border-collapse: collapse;
+    }
+
+    .table-bordered-gray th,
+    .table-bordered-gray td {
+        border: 1px solid #000;
+    }
+
+    .action-column .btn {
+    min-width: 34px;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+}
+
+.action-column .btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+    
+</style>
+
+
+<div style="text-align: center; margin-top: 20px;">
+    <div style="font-weight: bold; font-size: 24px; color: #000000;">
+        EXPEDIENTES PENALES CONCLUIDOS
+    </div>
+</div>
+
+<div class="px-3" style="background-color: #F1F4F4;">
+<!-- Sección de búsqueda -->
+                    <h5 class="mb-2">Filtros para localizar el expediente penal concluido</h5>
+                    <div class="row mb-3">
+                        <!-- Item -->
+                        <div class="col">
+                            <label class="form-label">Item</label>
+                            <input type="text" class="form-control filter-input" data-column="0">
+                        </div>
+                        <!-- Expediente -->
+                        <div class="col">
+                            <label class="form-label">Carpeta Fiscal</label>
+                            <input type="text" class="form-control filter-input" data-column="1">
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="col">
+                            <label class="form-label">Delito</label>
+                            <input type="text" class="form-control filter-input" data-column="3">
+                        </div>
+                        <div class="col ">
+                            <label class="form-label">Fiscalía</label>
+                            <input type="text" class="form-control filter-input" data-column="4">
+                        </div>
+                        <!--Centro de Costo -->
+                        <div class="col">
+                            <label class="form-label">Demandante</label>
+                            <input type="text" class="form-control filter-input" data-column="5">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">Demandado</label>
+                            <input type="text" class="form-control filter-input" data-column="6">
+                        </div>
+                        <div class="col d-none">
+                            <label class="form-label">Sede</label>
+                            <input type="text" class="form-control filter-input" data-column="7">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Responsable</label>
+                            <select class="form-select filter-input" data-column="9" id="responsableSelect">
+                                <option value="">Seleccionar</option>
+                                {% for user in usuarios_legales %}
+                                    <option value="{{ user.first_name }} {{ user.last_name }}">
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Alerta</label>
+                            <select class="form-select filter-input" data-column="alerta" id="alertaSelect">
+                                <option value="">Seleccionar</option>
+                                <option value="danger">🟥 Urgente (≤ 5 días)</option>
+                                <option value="warning">🟨 Próximo (≤ 15 días)</option>
+                                <option value="success">🟩 A tiempo (> 15 días)</option>
+                                <option value="secondary">⬛ Sin fecha asignada</option>
+                            </select>
+
+                        </div>
+                       <div class="col">
+                            <label class="form-label">Especialidad</label>
+                            <select class="form-select filter-input" data-column="8" id="especialidadSelect">
+                                <option value="">Seleccionar</option>
+                                {% for esp in especialidades %}
+                                    <option value="{{ esp }}">{{ esp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <!-- Botón Limpiar Filtros -->
+                        <div class="col">
+                            <label class="form-label" style="color: #F1F4F4;">Limpiar</label>
+                            <a href="{% url 'control_expediente:lista_carpeta_fiscal' %}" id="clearFilters"
+                                class="form-control btn btn-secondary text-center"
+                                style="background-color: #5E7373; border: none; line-height: 25px;">Limpiar
+                                Filtros</a>
+                        </div>
+                    </div>
+
+                    <div id="totalExpedientes" class="mt-2 fw-bold text-dark">
+                        Total expedientes penales: <span id="expedienteCount">{{ caso_judiciales|length }}</span>
+                    </div>
+</div>
+
+<div class="container mt-2" style="max-width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    
+
+                    <!-- Modal para agregar nueva expediente -->
+                    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl" id="draggableDocumentModal">
+                            <div class="modal-content">
+                                <div class="modal-header text-white"
+                                    id="documentModalHeader"
+                                    style="background-color: #5E7373;">
+                                    <h5 class="modal-title" id="documentModalLabel">Agregar Nuevo Expediente</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                            <div class="modal-body">
+  <form id="expedienteForm" method="POST" action="{% url 'control_expediente:lista_carpeta_fiscal' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.media }}
+    <div class="container">
+      <div class="col-md-12">
+  <div class="row g-3">
+    <!-- Columna 1 -->
+    <div class="col-md-4">
+      <label for="id_codigo" class="form-label">Item</label>
+      {{ form.item }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_expediente" class="form-label">Carpeta Fiscal</label>
+      {{ form.carpeta_fiscal }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_sede" class="form-label">Sede</label>
+      {{ form.sede }}
+    </div>
+
+    <!-- Columna 2 -->
+    <div class="col-md-4">
+      <label for="id_especialidad" class="form-label">Especialidad</label>
+      {{ form.especialidad }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_materia" class="form-label">Delito</label>
+      {{ form.delito }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_juzgado" class="form-label">Fiscalía</label>
+      {{ form.fiscalia }}
+    </div>
+
+    <!-- Columna 3 -->
+    <div class="col-md-4">
+      <label for="id_demandante" class="form-label">Demandante</label>
+      {{ form.demandante }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_demandado" class="form-label">Demandado</label>
+      {{ form.demandado }}
+    </div>
+    <div class="col-md-4">
+      <label for="id_representante" class="form-label">Representa a</label>
+      {{ form.representante }}
+    </div>
+    <div class="col-md-12">
+      <label for="id_representante" class="form-label">Responsable</label>
+      {{ form.responsable }}
+    </div>
+  </div>
+</div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn px-5 py-2 btnGuardar" style="background-color: #000000; color: white;">Guardar</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="table-container" style="max-height: 65vh; overflow-y: auto; overflow-x: auto;">
+                        <table class="table table-hover table-bordered-gray" id="documentsTable">
+                            <thead class="" style="position: sticky; top: 0; z-index: 1;">
+                                <tr style="background-color: #000;">
+                                    <th style="color: white;">ITEM</th>
+                                    <th style="color: white;">CARPETA FISCAL</th>
+                                    <th style="color: white;">PENDIENTE</th>
+                                    <th style="color: white;">DELITO</th>
+                                    <th style="color: white;">FISCALÍA</th>
+                                    <th style="color: white;">DEMANDANTE</th>
+                                    <th style="color: white;">DEMANDADO</th>
+                                    <th style="color: white;">SEDE</th>
+                                    <th style="color: white;">ESPECIALIDAD</th>
+                                    <th style="color: white;">RESPONSABLE</th>
+                                    <th style="color: white;" class="d-none">REPRESENTA A</th>
+                                    {% if request.user.role != 1 %}
+                                    <th style="color: white;">ACCIONES</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+    {% for cj in caso_judiciales %}
+    <tr class="clickable-row"
+        data-href="{% url 'control_expediente:ver_seguimiento_fiscal_concluido' cj.id %}"
+        data-alerta="{{ cj.alerta_color }}">
+        <td>{{ cj.item|default:'' }}</td>
+        <td class="text-nowrap">{{ cj.carpeta_fiscal }}</td>
+        <td >{{ cj.pendiente|default:''|safe }}</td>
+        <td>{{ cj.delito|default:''}}</td>
+        <td>{{ cj.fiscalia|default:'' }}</td>
+
+        <td {% if cj.representante|default:'' == 'Demandante' %}
+                    style="background-color: #d8dfdf; font-weight: bold;"                
+            {% endif %}>
+            {{ cj.demandante }}
+        </td>
+
+        <td {% if cj.representante|default:'' == 'Demandado' %}
+                style="background-color: #d8dfdf; font-weight: bold;"
+            {% endif %}>
+            {{ cj.demandado }}
+        </td>
+
+        <td>{{ cj.sede|default:"" }}</td>
+        <td>{{ cj.especialidad|default:"" }}</td>
+        <td>{{ cj.responsable.first_name|default:"" }} {{ cj.responsable.last_name|default:"" }}</td>
+        <td class="d-none">
+            {% if cj.representante == 'demandante' %}
+            Demandante
+            {% elif cj.representante == 'demandado' %}
+            Demandado
+            {% endif %}
+        </td>
+
+        {% if request.user.role != 1 %}
+        <td class="action-column text-center align-middle">
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap" role="group">
+                <button type="button" class="btn btn-sm text-white btn-editar"
+                    style="background-color: #000; border-radius: 4px;" data-bs-toggle="modal"
+                    data-bs-target="#editCasoJudicialModal"
+                    data-id="{{ cj.id }}"
+                    data-codigo="{{ cj.item|default_if_none:'' }}"
+                    data-expediente="{{ cj.carpeta_fiscal|default_if_none:'' }}"
+                    data-sede="{{ cj.sede|default_if_none:'' }}"
+                    data-especialidad="{{ cj.especialidad|default_if_none:'' }}"
+                    data-materia="{{ cj.delito }}"
+                    data-juzgado="{{ cj.fiscalia|default_if_none:'' }}"
+                    data-demandante="{{ cj.demandante }}"
+                    data-demandado="{{ cj.demandado }}"
+                    data-anioinicio="{{ cj.anio_inicio|default_if_none:'' }}"
+                    data-representante="{{ cj.representante }}"
+                    data-responsable="{{ cj.responsable.id|default_if_none:'' }}"
+                    data-concluido="{{ cj.concluido|default_if_none:'' }}"
+                    data-pendiente="{{ cj.pendiente }}"
+                    data-seguimiento-id="{% with cj.seguimientos_ordenados.0 as ult %}{{ ult.id }}{% endwith %}">
+                    <i class="bi bi-pencil-square fs-5"></i>
+                </button>
+                {% if request.user.role == 3 %}
+                    <a href="{% url 'control_expediente:eliminar_concluidos_fiscal' cj.id %}"
+                        class="btn btn-sm text-white btnEliminar"
+                        style="background-color: #5E7373; border-radius: 4px;"
+                        title="Eliminar">
+                        <i class="bi bi-trash fs-5"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</tbody>
+                        </table>
+                    </div>
+
+
+                    <!-- Modal para editar expediente -->
+<div class="modal fade" id="editCasoJudicialModal" tabindex="-1"
+    aria-labelledby="editCasoJudicialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" id="editCasoJudicialDialog">
+        <div class="modal-content">
+            <div class="modal-header text-white" id="editCasoJudicialHeader"
+                style="background-color: #5E7373;">
+                <h5 class="modal-title" id="editCasoJudicialModalLabel">Editar Expediente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'control_expediente:editar_expediente_fiscal_concluido' %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_id" name="id">
+                    <input type="hidden" id="edit_seguimiento_id" name="seguimiento_id">
+                    
+                    <div class="container">
+                        <div class="row g-3">
+                            <!-- Primera Fila -->
+                            <div class="col-md-4">
+                                <label for="edit_id_codigo" class="form-label">Item</label>
+                                <input type="text" class="form-control" id="edit_id_codigo" name="item" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_expediente" class="form-label">Carpeta Fiscal</label>
+                                <input type="text" class="form-control" id="edit_id_expediente" name="carpeta_fiscal" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_sede" class="form-label">Sede</label>
+                                <input type="text" class="form-control" id="edit_id_sede" name="sede" disabled>
+                            </div>
+
+                            <!-- Segunda Fila -->
+                            <div class="col-md-4">
+                                <label for="edit_id_especialidad" class="form-label">Especialidad</label>
+                                <input type="text" class="form-control" id="edit_id_especialidad" name="especialidad" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_materia" class="form-label">Delito</label>
+                                <input type="text" class="form-control" id="edit_id_materia" name="delito" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_juzgado" class="form-label">Fiscalia</label>
+                                <input type="text" class="form-control" id="edit_id_juzgado" name="fiscalia" disabled>
+                            </div>
+
+                            <!-- Tercera Fila -->
+                            <div class="col-md-4">
+                                <label for="edit_id_demandante" class="form-label">Demandante</label>
+                                <input type="text" class="form-control" id="edit_id_demandante" name="demandante" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_demandado" class="form-label">Demandado</label>
+                                <input type="text" class="form-control" id="edit_id_demandado" name="demandado" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="edit_id_representante" class="form-label">Representa a</label>
+                                <select class="form-control" id="edit_id_representante" name="representante" disabled>
+                                    <option value="">---------</option>
+                                    <option value="Demandante">Demandante</option>
+                                    <option value="Demandado">Demandado</option>
+                                    <option value="Martillero">Martillero</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_id_representante" class="form-label">Responsable</label>
+                                <select class="form-control" id="edit_responsable" name="responsable" disabled>
+                                    {% for user in usuarios_legales %}
+                                        <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_id_concluido" class="form-label">Estado</label>
+                                <select class="form-control" id="edit_concluido" name="concluido">
+                                    <option value="True">Activo</option>
+                                    <option value="False">Concluido</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-none">
+                                <label class="form-label">Pendiente</label>
+                                <textarea class="form-control ckeditor" id="edit_id_pendiente" name="pendiente"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn px-5 py-2 btnGuardar2"
+                                style="background-color: #000; color: #fff;">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <script>
+
+                        CKEDITOR.replace('edit_id_pendiente', {
+                            toolbar: [
+                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                                { name: 'colors', items: ['TextColor', 'BGColor'] },
+                                { name: 'paragraph', items: ['NumberedList', 'BulletedList'] }
+                            ]
+                        });
+
+
+                        function makeModalDraggable(modalId, dialogId, headerId) {
+    const modal = document.getElementById(modalId);
+    const modalDialog = document.getElementById(dialogId);
+    const modalHeader = document.getElementById(headerId);
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    modal.addEventListener('shown.bs.modal', function () {
+        const rect = modalDialog.getBoundingClientRect();
+        modalDialog.style.position = 'fixed';
+        modalDialog.style.top = rect.top + 'px';
+        modalDialog.style.left = rect.left + 'px';
+        modalDialog.style.margin = '0';
+        modalDialog.style.transform = 'none';
+        modalDialog.style.width = rect.width + 'px';
+    });
+
+    modalHeader.addEventListener('mousedown', function (e) {
+        if (e.target.closest('button')) return;
+        isDragging = true;
+        const rect = modalDialog.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (isDragging) {
+            modalDialog.style.top = `${e.clientY - offsetY}px`;
+            modalDialog.style.left = `${e.clientX - offsetX}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', function () {
+        isDragging = false;
+    });
+
+    modal.addEventListener('hidden.bs.modal', function () {
+        modalDialog.removeAttribute('style');
+    });
+}
+
+                        document.addEventListener("DOMContentLoaded", function () {
+
+                            // MODALES MOVIBLES
+                            makeModalDraggable('documentModal', 'draggableDocumentModal', 'documentModalHeader');
+                            makeModalDraggable('editCasoJudicialModal', 'editCasoJudicialDialog', 'editCasoJudicialHeader');
+
+
+                            const table = document.getElementById("documentsTable");
+                            const tbody = table.querySelector("tbody");
+                            const rows = Array.from(tbody.querySelectorAll("tr"));
+
+                            // Función para extraer año y número de código tipo "008-23"
+                            function parseCodigo(codigo) {
+                                const [numStr, yearStr] = codigo.split("-");
+                                const numero = parseInt(numStr, 10);
+                                const anio = parseInt(yearStr, 10);
+                                return { anio, numero };
+                            }
+
+                            rows.sort((a, b) => {
+                                const codigoA = a.children[0].textContent.trim();
+                                const codigoB = b.children[0].textContent.trim();
+
+                                const aParsed = parseCodigo(codigoA);
+                                const bParsed = parseCodigo(codigoB);
+
+                                // Primero ordenar por año, luego por número
+                                if (aParsed.anio !== bParsed.anio) {
+                                    return aParsed.anio - bParsed.anio;
+                                } else {
+                                    return aParsed.numero - bParsed.numero;
+                                }
+                            });
+
+                            // Vacía el tbody y vuelve a agregar las filas ordenadas
+                            tbody.innerHTML = "";
+                            rows.forEach(row => tbody.appendChild(row));
+                        });
+
+                        document.addEventListener('DOMContentLoaded', function () {
+
+                            const rows = document.querySelectorAll(".clickable-row");
+
+        rows.forEach(row => {
+            row.addEventListener("click", function (e) {
+                // Evita que haga redirect si se hace clic en un botón o enlace dentro de la fila
+                if (e.target.closest(".action-column") || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('.btn-group')) {
+                    return;
+                }
+                const url = this.dataset.href;
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+
+
+    // FILTRO EN TIEMPO REAL
+    document.querySelectorAll('.filter-input').forEach(input => {
+    input.addEventListener('input', filtrarTabla);
+});
+
+document.querySelectorAll('.filter-select').forEach(select => {
+    select.addEventListener('change', filtrarTabla);
+});
+
+function filtrarTabla() {
+    const filtros = {};
+
+    document.querySelectorAll('.filter-input').forEach(input => {
+        const columna = input.dataset.column;
+        const valor = input.value.trim().toLowerCase();
+        if (valor) {
+            filtros[columna] = valor;
+        }
+    });
+
+
+    document.querySelectorAll('#documentsTable tbody tr').forEach(fila => {
+        let mostrar = true;
+
+        // Filtrado por columnas (texto)
+        for (const columna in filtros) {
+            if (columna === "alerta") continue; // saltamos el filtro de alerta por ahora
+            const celda = fila.cells[parseInt(columna)];
+            if (celda) {
+                const textoCelda = celda.textContent.trim().toLowerCase();
+                if (!textoCelda.includes(filtros[columna])) {
+                    mostrar = false;
+                    break;
+                }
+            }
+        }
+
+        // Filtro especial por color de alerta
+        if (mostrar && filtros["alerta"]) {
+            const colorFila = fila.dataset.alerta ? fila.dataset.alerta.toLowerCase() : "";
+            if (colorFila !== filtros["alerta"]) {
+                mostrar = false;
+            }
+        }
+        fila.style.display = mostrar ? '' : 'none';
+    });
+}
+
+
+
+    // EDITAR REGISTRO
+    const editButtons = document.querySelectorAll('.btn-editar');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Si el botón es un enlace, previene la redirección automática
+
+            const codigo = button.getAttribute('data-codigo');
+            const partida = button.getAttribute('data-juzgado');
+            const id = button.getAttribute('data-id');
+
+            document.getElementById('edit_id').value = button.getAttribute('data-id');
+            document.getElementById('edit_id_codigo').value = button.getAttribute('data-codigo');
+            document.getElementById('edit_id_expediente').value = button.getAttribute('data-expediente');
+            document.getElementById('edit_id_sede').value = button.getAttribute('data-sede');
+            document.getElementById('edit_id_especialidad').value = button.getAttribute('data-especialidad');
+            document.getElementById('edit_id_materia').value = button.getAttribute('data-materia');
+            document.getElementById('edit_id_juzgado').value = button.getAttribute('data-juzgado');
+            document.getElementById('edit_id_demandante').value = button.getAttribute('data-demandante');
+            document.getElementById('edit_id_demandado').value = button.getAttribute('data-demandado');
+            document.getElementById('edit_id_representante').value = button.getAttribute('data-representante');
+            document.getElementById('edit_responsable').value = button.getAttribute('data-responsable');
+            document.getElementById('edit_concluido').value = button.getAttribute('data-concluido');
+            document.getElementById('edit_seguimiento_id').value = button.getAttribute('data-seguimiento-id') || '';
+            
+            //document.getElementById('edit_id_pendiente').value = button.getAttribute('data-pendiente');
+            const observacionHtml2 = button.getAttribute('data-pendiente');
+            if (CKEDITOR.instances['edit_id_pendiente']) {
+                    CKEDITOR.instances['edit_id_pendiente'].setData(observacionHtml2 || '');
+                }
+        });
+    });
+
+});
+
+
+                        // BTN GUARDAR
+                        (function () {
+                            const botonesGuardar = document.querySelectorAll('.btnGuardar');
+
+                            botonesGuardar.forEach(boton => {
+                                boton.addEventListener('click', function (e) {
+                                    e.preventDefault(); // Detiene envío por defecto
+
+                                    const form = this.closest('form');
+                                    const campos = form.querySelectorAll("input, select, textarea");
+                                    let formValido = true;
+
+                                    campos.forEach(campo => {
+                                        if (
+                                            campo.offsetParent !== null && // Solo visibles
+                                            campo.hasAttribute("required") && 
+                                            !campo.value.trim()
+                                        ) {
+                                            formValido = false;
+                                        }
+                                    });
+
+                                    if (!formValido) {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Campos incompletos',
+                                            text: 'Por favor completa todos los campos obligatorios.',
+                                            confirmButtonText: 'Entendido',
+                                            confirmButtonColor: '#5E7373',
+                                        });
+                                        return; // Evita que siga
+                                    }
+
+                                    // Si está todo completo
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: "top-end",
+                                        showConfirmButton: false,
+                                        timer: 1000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.onmouseenter = Swal.stopTimer;
+                                            toast.onmouseleave = Swal.resumeTimer;
+                                        }
+                                    });
+
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "Registro guardado correctamente"
+                                    }).then(() => {
+                                        form.submit(); // Recién aquí se envía
+                                    });
+                                });
+                            });
+                        })();
+
+                        // BTN ACTUALIZAR
+                        (function () {
+                            const botonesGuardar = document.querySelectorAll('.btnGuardar2');
+
+                            botonesGuardar.forEach(boton => {
+                                boton.addEventListener('click', function (e) {
+                                    e.preventDefault(); // Previene el submit inmediato
+
+                                    const form = this.closest('form');
+
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: "top-end",
+                                        showConfirmButton: false,
+                                        timer: 1000,
+                                        timerProgressBar: true,
+                                        didOpen: (toast) => {
+                                            toast.onmouseenter = Swal.stopTimer;
+                                            toast.onmouseleave = Swal.resumeTimer;
+                                        }
+                                    });
+
+                                    Toast.fire({
+                                        icon: "success",
+                                        title: "Registro actualizado correctamente"
+                                    }).then(() => {
+                                        form.submit(); // Enviar el formulario después del toast
+                                    });
+                                });
+                            });
+                        })();
+
+                        // BTN ELIMINAR
+                        (function () {
+        const botonesEliminar = document.querySelectorAll('.btnEliminar');
+
+        botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita que el enlace se siga inmediatamente
+
+                Swal.fire({
+                    title: '¿Estás seguro de eliminar?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5E7373',
+                    cancelButtonColor: '#000000',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirige al href del botón
+                        window.location.href = this.href;
+                    }
+                });
+            });
+        });
+    })();
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const table = document.getElementById("documentsTable");
+        const countSpan = document.getElementById("expedienteCount");
+
+        function updateCount() {
+            // Contar solo las filas visibles (que no estén ocultas por filtros)
+            const visibleRows = Array.from(table.querySelectorAll("tbody tr"))
+                .filter(row => row.style.display !== "none");
+            countSpan.textContent = visibleRows.length;
+        }
+
+        updateCount(); // Mostrar al cargar
+
+        // Si usas inputs con clase .filter-input para filtrar, actualiza también el contador
+        document.querySelectorAll(".filter-input").forEach(input => {
+            input.addEventListener("input", updateCount);
+        });
+    });
+                    </script>
+                    {% endblock %}

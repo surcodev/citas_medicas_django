@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+{% block title %} Lista de citas {% endblock %}
+{% block body %}
+{% include "../components/navbar.html" %}
+
+<style>
+    label.form-label {
+        font-weight: 500;
+    }
+
+    .modal-content {
+        border-radius: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #E3F3EC !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 237, 237);
+    }
+    .form-select:focus {
+        border-color: #E3F3EC !important;
+        box-shadow: 0 0 0 0.2rem rgb(237, 237, 237);
+    }
+
+    .ver-pdf-btn:hover {
+        text-decoration: underline !important;
+    }
+
+    .table-bordered-gray {
+        border: 1px solid #000;
+        border-collapse: collapse;
+    }
+
+    .table-bordered-gray th,
+    .table-bordered-gray td {
+        border: 1px solid #000;
+    }
+
+    .estado-completado {
+        background-color: #d7ffe0 !important; /* Verde */
+        color: #000;
+        font-weight: bold;
+    }
+
+    .estado-programado {
+        background-color: #ffd2d7 !important; /* Rojo */
+        color: #000;
+        font-weight: bold;
+    }
+
+
+</style>
+
+<div style="text-align: center; margin-top: 20px;">
+    <div style="font-weight: bold; font-size: 24px; color: #26292E;">
+        LISTADO GENERAL DE CITAS
+    </div>
+</div>
+
+<div class="px-3 py-1" style="background-color: #F2FDFF;">
+    <!-- Sección de búsqueda -->
+                    <h5 class="mb-2">Utiliza los filtros para localizar la cita&nbsp;&nbsp;<i class="bi bi-search"></i></h5>
+
+                    <div class="row mb-3">
+                        
+                        <div class="col">
+                            <label class="form-label">PACIENTE</label>
+                            <input type="text" class="form-control filter-input" data-column="0">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">FECHA</label>
+                            <input type="date" class="form-control filter-input" data-column="1">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">MOTIVO</label>
+                            <input type="text" class="form-control filter-input" data-column="3">
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">ESTADO</label>
+                            <select class="form-select filter-input" data-column="4">
+                                <option value="">Todos</option>
+                                <option value="Completado">Completado</option>
+                                <option value="Programado">Programado</option>
+                            </select>
+                        </div>
+
+                        <!-- Botón Limpiar Filtros -->
+                        <div class="col d-none">
+                            <label class="form-label" style="color: #e4e3fc;">Limpiar</label>
+                            <a href="{% url 'clinica:lista_pacientes' %}" id="clearFilters"
+                                class="form-control btn btn-secondary text-center"
+                                style="background-color: #0995AD; border: none; line-height: 25px;">Limpiar
+                                Filtros</a>
+                        </div>
+
+                        <div class="col d-none">
+                            <label class="form-label" style="color: #e4e3fc;">Excel</label>
+                            <button id="exportBtn" class="btn btn-success form-control btn btn-secondary text-center"
+                                style="background-color: #0995AD; line-height: 25px; border: none;">
+                                <i class="bi-file-earmark-excel"></i>
+                                Exportar excel
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Botón para abrir el modal de agregar -->
+                    <center>
+                        <button type="button" class="btn text-white"
+                            style="background-color: #0995AD; border: none;" data-bs-toggle="modal"
+                            data-bs-target="#pacienteModal">
+                            <i class="bi bi-plus-lg"></i> Crear nueva cita
+                        </button>
+                    </center>
+</div>
+
+<div class="container mt-2" style="max-width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <!-- Tabla -->
+                    <div class="table-container" style="max-height: 65vh; overflow-y: auto; overflow-x: auto;">
+                        <table class="table table-hover table-bordered-gray" id="documentsTable">
+                            <thead style="position: sticky; top: 0; z-index: 1;">
+                                <tr style="background-color: #000 !important;">
+                                    <th style="color: white;">PACIENTE</th>
+                                    <th style="color: white;">FECHA</th>
+                                    <th style="color: white;">HORA</th>
+                                    <th style="color: white;">MOTIVO</th>
+                                    <th style="color: white;">ESTADO</th>
+                                    <th style="color: white;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in citas %}
+                                <tr>
+                                    <td>{{ c.paciente.nombre|default:'' }}</td>
+                                    <td>{{ c.fecha|date:"d/m/Y"|default:'' }}</td>
+                                    <td>{{ c.hora|time:"H:i" }}</td>
+                                    <td>{{ c.motivo|default:'' }}</td>
+                                    <td class="{% if c.estado %}estado-completado{% else %}estado-programado{% endif %}">
+                                        {% if c.estado %}
+                                            Completado
+                                        {% else %}
+                                            Programado
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm text-white me-2 btn-editar"
+                                                    style="background-color: #000;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editarCitaModal"
+                                                    data-id="{{ c.id }}"
+                                                    data-paciente="{{ c.paciente.nombre|default_if_none:'' }}"
+                                                    data-paciente_id="{{ c.paciente.id }}"
+                                                    data-fecha="{{ c.fecha|date:'Y-m-d' }}"
+                                                    data-hora="{{ c.hora|time:'H:i' }}"
+                                                    data-motivo="{{ c.motivo|default_if_none:'' }}"
+                                                    data-estado="{{ c.estado }}">
+                                                <i class="bi bi-pencil-square"></i> Editar horario
+                                            </button>
+
+
+                                            <a href="{% url 'clinica:atender_cita' c.id %}"
+                                                class="btn btn-sm text-white me-2"
+                                                style="background-color: #cd8e29;">
+                                                <i class="bi bi-pencil-square"></i> Atender cita
+                                            </a>
+
+                                            <a href="{% url 'clinica:eliminar_cita' c.id %}"
+                                                class="btn btn-sm text-white btnEliminar"
+                                                style="background-color: #0995AD;" title="Eliminar">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para editar cita -->
+<div class="modal fade" id="editarCitaModal" tabindex="-1" aria-labelledby="editarCitaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header text-white" style="background-color: #0995AD;">
+                <h5 class="modal-title">Editar horario de la Cita</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="{% url 'clinica:editar_cita' %}">
+                    {% csrf_token %}
+
+                    <input type="hidden" id="edit_cita_id" name="id">
+
+                    <div class="row g-3">
+
+                        <!-- Paciente -->
+                        <div class="col-md-6">
+                            <label class="form-label">Paciente</label>
+                            <select id="edit_paciente_id" name="paciente" class="form-select">
+                                <option value="">Seleccione un paciente</option>
+                                {% for p in pacientes %}
+                                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" id="edit_fecha" name="fecha" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Hora</label>
+
+                            <!-- Si tu form define hora como ChoiceField, iteramos sus choices -->
+                            <select id="edit_hora" name="hora" class="form-select">
+                                <option value="">Seleccione hora</option>
+                                {% for valor, etiqueta in form.hora.field.choices %}
+                                    <option value="{{ valor }}">{{ etiqueta }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Motivo -->
+                        <div class="col-md-12">
+                            <label class="form-label">Motivo</label>
+                            <textarea id="edit_motivo" name="motivo" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="col-md-4 d-none">
+                            <label class="form-label">Estado</label>
+                            <select id="edit_estado" name="estado" class="form-select">
+                                <option value="False">Programado</option>
+                                <option value="True">Completado</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn px-5 py-2 btnActualizarCita" style="background-color: #000000; color: #ffffff;">
+                            Guardar Cambios
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Modal para agregar nueva cita -->
+<div class="modal fade" id="pacienteModal" tabindex="-1" aria-labelledby="pacienteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #0995AD;">
+                <h5 class="modal-title" id="pacienteModalLabel">Crear Nueva Cita</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form method="POST" action="{% url 'clinica:lista_citas' %}">
+                    {% csrf_token %}
+
+                    <div class="container">
+                        <div class="row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label">Nombre</label> (Crear nuevo paciente)
+                                {{ form.paciente }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Fecha</label>
+                                {{ form.fecha }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Hora</label>
+                                {{ form.hora }}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label">Motivo</label>
+                                {{ form.motivo }}
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn px-5 py-2 btnGuardar"
+                                style="background-color: #000000; color: #ffffff;">
+                                Guardar
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filtros = document.querySelectorAll(".filter-input");
+    const tabla = document.getElementById("documentsTable");
+    const filas = tabla.querySelectorAll("tbody tr");
+
+    filtros.forEach(filtro => {
+        filtro.addEventListener("input", filtrarTabla);
+        filtro.addEventListener("change", filtrarTabla);
+    });
+
+    function filtrarTabla() {
+        filas.forEach(fila => {
+            let mostrar = true;
+
+            filtros.forEach(filtro => {
+                const columna = filtro.dataset.column;
+                const valorFiltro = filtro.value.toLowerCase().trim();
+                const textoCelda = fila.children[columna].textContent.toLowerCase().trim();
+
+                if (valorFiltro !== "") {
+                    if (!textoCelda.includes(valorFiltro)) {
+                        mostrar = false;
+                    }
+                }
+            });
+
+            fila.style.display = mostrar ? "" : "none";
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var editarModal = document.getElementById('editarCitaModal');
+
+    if (!editarModal) return;
+
+    editarModal.addEventListener('show.bs.modal', function (event) {
+        // Botón que disparó el modal
+        var button = event.relatedTarget;
+
+        if (!button) return;
+
+        // Obtener datos del data-*
+        var citaId = button.getAttribute('data-id') || '';
+        var pacienteId = button.getAttribute('data-paciente_id') || '';
+        var fecha = button.getAttribute('data-fecha') || '';
+        var hora = button.getAttribute('data-hora') || '';
+        var motivo = button.getAttribute('data-motivo') || '';
+        var estado = button.getAttribute('data-estado') || '';
+
+        // Asignar valores a los inputs del modal
+        var elId = document.getElementById('edit_cita_id');
+        var elPaciente = document.getElementById('edit_paciente_id');
+        var elFecha = document.getElementById('edit_fecha');
+        var elHora = document.getElementById('edit_hora');
+        var elMotivo = document.getElementById('edit_motivo');
+        var elEstado = document.getElementById('edit_estado');
+
+        if (elId) elId.value = citaId;
+        if (elFecha) elFecha.value = fecha;
+        if (elMotivo) elMotivo.value = motivo;
+
+        // Seleccionar paciente por value
+        if (elPaciente) {
+            elPaciente.value = pacienteId;
+            // Si quieres forzar que el option aparezca como selected (por compatibilidad):
+            var opt = elPaciente.querySelector('option[value="'+ pacienteId +'"]');
+            if (opt) opt.selected = true;
+        }
+
+        // Seleccionar hora (value debe coincidir exactamente con opciones)
+        if (elHora) {
+            elHora.value = hora;
+            var optHora = elHora.querySelector('option[value="'+ hora +'"]');
+            if (optHora) optHora.selected = true;
+        }
+
+        // Estado — tu select usa "False"/"True"
+        if (elEstado) {
+            // si viene como booleano string "True"/"False" o "true"/"false"
+            if (estado === "True" || estado === "true" || estado === "1") {
+                elEstado.value = "True";
+            } else {
+                elEstado.value = "False";
+            }
+        }
+    });
+});
+
+
+
+
+
+// BTN GUARDAR
+(function () {
+    const botonesGuardar = document.querySelectorAll('.btnGuardar');
+
+    botonesGuardar.forEach(boton => {
+        boton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const form = this.closest('form');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1100,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: "success",
+                title: "Cita guardado correctamente"
+            }).then(() => {
+                form.submit();
+            });
+
+        });
+    });
+})();
+
+// BTN ACTUALIZAR CITA
+(function () {
+    const botonesGuardar = document.querySelectorAll('.btnActualizarCita');
+
+    botonesGuardar.forEach(boton => {
+        boton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const form = this.closest('form');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1100,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: "success",
+                title: "Cita actualizado correctamente"
+            }).then(() => {
+                form.submit();
+            });
+
+        });
+    });
+})();
+
+
+
+// BTN ELIMINAR
+(function () {
+const botonesEliminar = document.querySelectorAll('.btnEliminar');
+
+botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita que el enlace se siga inmediatamente
+
+                Swal.fire({
+                    title: '¿Estás seguro de eliminar?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#BF0909',
+                    cancelButtonColor: '#6F6F6F',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirige al href del botón
+                        window.location.href = this.href;
+                    }
+                });
+            });
+        });
+    })();
+
+</script>
+
+{% endblock %}
