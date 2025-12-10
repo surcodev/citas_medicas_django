@@ -1,5 +1,5 @@
 mysql -u noroot -h 192.168.100.172 -p --ssl=0
-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
+
 docker-compose down -v
 docker-compose up --build -d
 
