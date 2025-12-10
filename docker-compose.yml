@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_citas
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: citas_db
+      MYSQL_USER: noroot
+      MYSQL_PASSWORD: noroot
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: citas_django
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # Espera más tiempo a que MySQL esté listo
+      MYSQL_HOST: db
+      MYSQL_USER: noroot
+      MYSQL_PASSWORD: noroot
+      MYSQL_DB: citas_db
+
+volumes:
+  mysql_data:
