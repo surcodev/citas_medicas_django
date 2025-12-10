@@ -127,28 +127,56 @@
 
             <div class="row g-3">
 
-                <div class="col-md-3">
-                    <div class="info-label">NOMBRE DEL PACIENTE</div>
-                    <div class="">{{ paciente.nombre }}</div>
-                </div>
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Nombre del paciente</div>
+        <div class="">{{ paciente.nombre|default_if_none:'' }}</div>
+    </div>
 
-                <div class="col-md-3">
-                    <div class="info-label">DNI</div>
-                    <div class="">{{ paciente.dni }}</div>
-                </div>
+    <div class="col-md-3">
+        <div class="info-label fw-bold">DNI</div>
+        <div class="">{{ paciente.dni|default_if_none:'' }}</div>
+    </div>
 
-                <div class="col-md-3">
-                    <div class="info-label">TELÉFONO</div>
-                    <div class="">{{ paciente.telefono }}</div>
-                </div>
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Teléfono</div>
+        <div class="">{{ paciente.telefono|default_if_none:'' }}</div>
+    </div>
 
-                <div class="col-md-3">
-                    <div class="info-label">DIRECCIÓN</div>
-                    <div class="">{{ paciente.direccion }}</div>
-                </div>
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Dirección</div>
+        <div class="">{{ paciente.direccion|default_if_none:'' }}</div>
+    </div>
 
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Motivo de la cita</div>
+        <div class="">{{ cita.motivo|default_if_none:'' }}</div>
+    </div>
 
-            </div>
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Fecha/Hora de la cita</div>
+        <div class="">
+            {{ cita.fecha|date:"d/m/Y" }} a las {{ cita.hora|time:"H:i" }}
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Fecha/Hora de atención</div>
+        <div class="">{{ cita.updated_at|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Estado</div>
+        <div class="">
+            {% if cita.estado %}
+                Completado
+            {% else %}
+                Programado
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
 
         </div>
     </div>
@@ -416,7 +444,7 @@
         </div>
 
         <div class="text-end mt-4">
-            <button class="btn px-4" style="background-color: #000; color: #fff;">Guardar consulta</button>
+            <button class="btn px-4 btnGuardar" style="background-color: #000; color: #fff;">Guardar consulta</button>
             {% if cita.estado %}
             <a href="{% url 'clinica:generar_pdf_cita' cita.id %}" 
             class="btn btn-danger" target="_blank">
@@ -472,6 +500,43 @@ document.getElementById("input-imagenes").addEventListener("change", function(e)
         });
     });
 });
+
+
+
+
+
+// BTN GUARDAR
+(function () {
+    const botonesGuardar = document.querySelectorAll('.btnGuardar');
+
+    botonesGuardar.forEach(boton => {
+        boton.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const form = this.closest('form');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: "success",
+                title: "Registro guardado correctamente"
+            }).then(() => {
+                form.submit();
+            });
+
+        });
+    });
+})();
 </script>
 
 {% endblock %}
