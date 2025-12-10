@@ -83,7 +83,7 @@ def generar_pdf_cita(request, cita_id):
 
     # pdf = pdfkit.from_string(html, False, options=options)
     import os
-    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
 #    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
     pdf = pdfkit.from_string(html, False, options=options, configuration=config)
 
