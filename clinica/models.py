@@ -79,10 +79,10 @@ class ArchivoPaciente(models.Model):
 
 class Cita(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='citas')
-    fecha = models.DateField()
-    hora = models.TimeField()
-    motivo = models.CharField(max_length=255)
-    estado = models.BooleanField(default=False)  # False = programada, True = completada
+    fecha = models.DateField(blank=True, null=True)
+    hora = models.TimeField(blank=True, null=True)
+    motivo = models.CharField(max_length=255, blank=True, null=True)
+    estado = models.BooleanField(default=False, blank=True, null=True)  # False = programada, True = completada
 
     # TIMESTAMPS
     created_at = models.DateTimeField(auto_now_add=True)

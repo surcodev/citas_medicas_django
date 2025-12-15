@@ -69,24 +69,24 @@ STATICFILES_DIRS = [
 
 
 MEDIA_ROOT = BASE_DIR
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',  # archivo SQLite dentro del proyecto
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'citas_db',
-        'USER': 'noroot',
-        'PASSWORD': 'noroot',
-        'HOST': 'db',
-        'PORT': 3306,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # archivo SQLite dentro del proyecto
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'citas_db',
+#         'USER': 'noroot',
+#         'PASSWORD': 'noroot',
+#         'HOST': 'db',
+#         'PORT': 3306,
+#     }
+# }
 
 ALLOWED_HOSTS = ["*"]
 

@@ -95,8 +95,8 @@
                                 Filtros</a>
                         </div>
 
-                        <div class="col d-none">
-                            <label class="form-label" style="color: #e4e3fc;">Excel</label>
+                        <div class="col">
+                            <label class="form-label" style="color: #f2fdff;">Excel</label>
                             <button id="exportBtn" class="btn btn-success form-control btn btn-secondary text-center"
                                 style="background-color: #0995AD; line-height: 25px; border: none;">
                                 <i class="bi-file-earmark-excel"></i>
@@ -350,11 +350,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
             filtros.forEach(filtro => {
                 const columna = filtro.dataset.column;
-                const valorFiltro = filtro.value.toLowerCase().trim();
-                const textoCelda = fila.children[columna].textContent.toLowerCase().trim();
+                let valorFiltro = filtro.value.trim();
+                let textoCelda = fila.children[columna].textContent.trim();
 
-                if (valorFiltro !== "") {
-                    if (!textoCelda.includes(valorFiltro)) {
+                // 🔹 FILTRO FECHA
+                if (filtro.type === "date" && valorFiltro !== "") {
+                    // convertir DD/MM/YYYY → YYYY-MM-DD
+                    const partes = textoCelda.split("/");
+                    if (partes.length === 3) {
+                        textoCelda = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    }
+
+                    if (textoCelda !== valorFiltro) {
+                        mostrar = false;
+                    }
+                }
+                // 🔹 OTROS FILTROS
+                else if (valorFiltro !== "") {
+                    if (!textoCelda.toLowerCase().includes(valorFiltro.toLowerCase())) {
                         mostrar = false;
                     }
                 }
@@ -521,6 +534,50 @@ botonesEliminar.forEach(boton => {
             });
         });
     })();
+
+
+
+
+document.getElementById("exportBtn").addEventListener("click", function () {
+    const tabla = document.getElementById("documentsTable");
+    const filas = tabla.querySelectorAll("tbody tr");
+
+    let data = [];
+
+    // Encabezados Excel
+    data.push(["PACIENTE", "FECHA", "HORA", "MOTIVO", "ESTADO"]);
+
+    filas.forEach(fila => {
+        // solo filas visibles (filtradas)
+        if (fila.style.display !== "none") {
+            const celdas = fila.querySelectorAll("td");
+
+            data.push([
+                celdas[0]?.innerText.trim() || "", // PACIENTE
+                celdas[1]?.innerText.trim() || "", // FECHA (DD/MM/YYYY)
+                celdas[2]?.innerText.trim() || "", // HORA
+                celdas[3]?.innerText.trim() || "", // MOTIVO
+                celdas[4]?.innerText.trim() || ""  // ESTADO
+            ]);
+        }
+    });
+
+    if (data.length === 1) {
+        alert("No hay citas para exportar");
+        return;
+    }
+
+    // Crear libro Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Citas");
+
+    // Descargar archivo
+    XLSX.writeFile(workbook, "citas.xlsx");
+});
+
+
 
 </script>
 
