@@ -65,7 +65,7 @@ class CitaForm(forms.ModelForm):
         # Generar intervalos de 30 min desde 08:00 hasta 17:30
         opciones_horas = []
         inicio = datetime.strptime("08:00", "%H:%M")
-        fin = datetime.strptime("17:30", "%H:%M")
+        fin = datetime.strptime("20:00", "%H:%M")
 
         actual = inicio
         while actual <= fin:
