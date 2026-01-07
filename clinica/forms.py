@@ -20,6 +20,12 @@ class PacienteForm(forms.ModelForm):
         model = Paciente
         fields = '__all__'
         widgets = {
+            'fecha_nacimiento': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                    'class': 'form-control'
+                }
+            ),
             'relato_clinico': forms.Textarea(attrs={
                 'rows': 5,      # altura del textarea
                 'cols': 60,     # ancho (puedes omitirlo si usas CSS)
@@ -59,8 +65,10 @@ class CitaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Texto vacío del selector de pacientes
-        self.fields['paciente'].empty_label = "Seleccionar paciente"
+        self.fields['paciente'].empty_label = "Buscar paciente..."
+        self.fields['paciente'].widget.attrs.update({
+            'class': 'form-control select-paciente'
+        })
 
         # Generar intervalos de 30 min desde 08:00 hasta 17:30
         opciones_horas = []

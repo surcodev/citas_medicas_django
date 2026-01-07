@@ -1,5 +1,6 @@
 from django.db import models
 from tinymce.models import HTMLField
+from datetime import date
 
 class Paciente(models.Model):
     TIPO_SANGRE_CHOICES = [
@@ -14,6 +15,7 @@ class Paciente(models.Model):
     ]
 
     nombre = models.CharField(max_length=100, blank=True, null=True)
+    fecha_nacimiento = models.DateField(blank=True, null=True)
     email = models.CharField(max_length=100, blank=True, null=True)
     dni = models.CharField(max_length=100, blank=True, null=True)
     telefono = models.CharField(max_length=255, blank=True, null=True)
@@ -61,6 +63,16 @@ class Paciente(models.Model):
 
     def __str__(self):
         return self.nombre or "Paciente sin nombre"
+    
+    @property
+    def edad_paciente(self):
+        if not self.fecha_nacimiento:
+            return None
+
+        hoy = date.today()
+        return hoy.year - self.fecha_nacimiento.year - (
+            (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+        )
 
 
 class ArchivoPaciente(models.Model):

@@ -134,7 +134,7 @@
 
     <div class="col-md-3">
         <div class="info-label fw-bold">Edad</div>
-        <div class="">{{ paciente.edad|default_if_none:'' }}</div>
+        <div class="">{{ paciente.edad_paciente|default_if_none:'' }}</div>
     </div>
 
     <div class="col-md-3">
@@ -191,7 +191,7 @@
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anamnesis">Anamnesis</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#examen">Examen físico</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactos">Contactos de emergencia</button></li>
+        <li class="nav-item d-none"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactos">Contactos de emergencia</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anteriores">Citas anteriores</button></li>
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#consulta">Diagnóstico</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#receta">Tratamiento</button></li>
@@ -297,7 +297,7 @@
             <div class="tab-pane fade" id="examen">
                 <div class="row">
 
-                    <div class="col-md-4">
+                    <div class="col-md-4 d-none">
                         <label>Edad</label>
                         <input name="edad" class="form-control" value="{{ paciente.edad|default_if_none:'' }}">
                     </div>

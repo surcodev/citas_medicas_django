@@ -147,7 +147,7 @@
                         <tbody>
                             {% for c in citas_hoy %}
                             <tr onclick="window.location.href='/clinica/atender_cita/{{ c.id }}/'" style="cursor: pointer;">
-                                <td class="fw-bold">{{ c.hora }}</td>
+                                <td class="fw-bold">{{ c.hora|time:"h:i A" }}</td>
                                 <td>{{ c.paciente.nombre }}</td>
                                 <td>{{ c.motivo }}</td>
                                 <td>

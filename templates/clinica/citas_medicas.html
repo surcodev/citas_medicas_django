@@ -140,7 +140,7 @@
                                 <tr>
                                     <td>{{ c.paciente.nombre|default:'' }}</td>
                                     <td>{{ c.fecha|date:"d/m/Y"|default:'' }}</td>
-                                    <td>{{ c.hora|time:"H:i" }}</td>
+                                    <td>{{ c.hora|time:"h:i A" }}</td>
                                     <td>{{ c.motivo|default:'' }}</td>
                                     <td class="{% if c.estado %}estado-completado{% else %}estado-programado{% endif %}">
                                         {% if c.estado %}
@@ -293,7 +293,7 @@
                         <div class="row g-3">
 
                             <div class="col-md-4">
-                                <label class="form-label">Nombre</label> (Crear nuevo paciente)
+                                <label class="form-label">Nombre</label>
                                 {{ form.paciente }}
                             </div>
 
@@ -327,6 +327,28 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+<script>
+document.addEventListener('shown.bs.modal', function (event) {
+    const modal = event.target;
+
+    if (modal.id === 'pacienteModal') {
+        const select = modal.querySelector('#id_paciente');
+
+        if (select && !select.tomselect) {
+            new TomSelect(select, {
+                placeholder: 'Buscar paciente...',
+                allowEmptyOption: true,
+                create: false
+            });
+        }
+    }
+});
+</script>
 
 
 
