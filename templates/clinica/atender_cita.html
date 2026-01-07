@@ -120,16 +120,21 @@
     <!-- DATOS PRINCIPALES -->
    <div class="card card-expediente mb-4">
         <div class="expediente-header">
-            DATOS DEL PACIENTE
+            {{ paciente.nombre|default_if_none:'' }}
         </div>
 
         <div class="expediente-body">
 
             <div class="row g-3">
 
-    <div class="col-md-3">
+    <div class="col-md-3 d-none">
         <div class="info-label fw-bold">Nombre del paciente</div>
         <div class="">{{ paciente.nombre|default_if_none:'' }}</div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="info-label fw-bold">Edad</div>
+        <div class="">{{ paciente.edad|default_if_none:'' }}</div>
     </div>
 
     <div class="col-md-3">
@@ -291,6 +296,11 @@
             <!-- TAB EXAMEN -->
             <div class="tab-pane fade" id="examen">
                 <div class="row">
+
+                    <div class="col-md-4">
+                        <label>Edad</label>
+                        <input name="edad" class="form-control" value="{{ paciente.edad|default_if_none:'' }}">
+                    </div>
 
                     <div class="col-md-4">
                         <label>Peso</label>

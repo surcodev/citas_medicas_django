@@ -18,7 +18,6 @@ class Paciente(models.Model):
     dni = models.CharField(max_length=100, blank=True, null=True)
     telefono = models.CharField(max_length=255, blank=True, null=True)
     direccion = models.CharField(max_length=100, blank=True, null=True)
-    edad = models.CharField(max_length=255, blank=True, null=True)
 
     # ANAMNESIS
     alergias_conocidas = models.CharField(max_length=255, blank=True, null=True)
@@ -30,6 +29,7 @@ class Paciente(models.Model):
     relato_clinico = models.TextField(blank=True, null=True)
 
     # EXAMEN FISICO
+    edad = models.CharField(max_length=255, blank=True, null=True)
     peso = models.CharField(max_length=50, blank=True, null=True)
     altura = models.CharField(max_length=50, blank=True, null=True)
     presion_arterial = models.CharField(max_length=50, blank=True, null=True)

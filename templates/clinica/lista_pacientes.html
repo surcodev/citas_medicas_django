@@ -202,6 +202,7 @@
                                                 data-medicamentos="{{ p.medicamentos_actuales|default_if_none:'' }}"
                                                 data-habitos="{{ p.habitos|default_if_none:'' }}"
                                                 data-relato="{{ p.relato_clinico|default_if_none:'' }}"
+                                                data-edad="{{ p.edad|default_if_none:'' }}"
                                                 data-peso="{{ p.peso|default_if_none:'' }}"
                                                 data-altura="{{ p.altura|default_if_none:'' }}"
                                                 data-presion="{{ p.presion_arterial|default_if_none:'' }}"
@@ -408,6 +409,11 @@
                         <!-- EXAMEN FISICO -->
                         <div class="tab-pane fade" id="tabExamen">
                             <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Edad</label>
+                                    <input type="text" id="edit_edad" name="edad" class="form-control">
+                                </div>
 
                                 <div class="col-md-4">
                                     <label class="form-label">Peso</label>
@@ -813,6 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit_habitos").value = button.getAttribute("data-habitos");
         document.getElementById("edit_relato").value = button.getAttribute("data-relato");
 
+        document.getElementById("edit_edad").value = button.getAttribute("data-edad");
         document.getElementById("edit_peso").value = button.getAttribute("data-peso");
         document.getElementById("edit_altura").value = button.getAttribute("data-altura");
         document.getElementById("edit_presion").value = button.getAttribute("data-presion");

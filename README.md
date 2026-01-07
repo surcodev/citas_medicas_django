@@ -16,3 +16,5 @@ python manage.py migrate clinica
 python manage.py migrate productividad 
 python manage.py makemigrations 
 python manage.py migrate
+
+db.sqlite3

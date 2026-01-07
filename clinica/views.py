@@ -83,7 +83,8 @@ def generar_pdf_cita(request, cita_id):
 
     # pdf = pdfkit.from_string(html, False, options=options)
     import os
-    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+    #config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+    config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
 #    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
     pdf = pdfkit.from_string(html, False, options=options, configuration=config)
 
@@ -162,7 +163,7 @@ def atender_cita(request, cita_id):
             "alergias_conocidas", "emfermedades_previas", "antecentes_quirurgicos",
             "antecedentes_familiares", "medicamentos_actuales", "habitos",
             "relato_clinico",
-            "peso", "altura", "presion_arterial", "frecuencia_cardiaca",
+            "edad", "peso", "altura", "presion_arterial", "frecuencia_cardiaca",
             "frecuencia_respiratoria", "temperatura", "tipo_de_sangre",
             "descripcion_examen_fisico",
             "nombre_contacto_emergencia1", "telefono_contacto_emergencia1",
@@ -229,7 +230,7 @@ def lista_citas(request):
     else:
         form = CitaForm()
 
-    citas = Cita.objects.all().order_by('fecha')
+    citas = Cita.objects.all().order_by('-fecha')
     pacientes = Paciente.objects.all()
 
     return render(request, 'clinica/citas_medicas.html', {
@@ -335,6 +336,7 @@ def editar_paciente(request):
         paciente.relato_clinico = request.POST.get("relato_clinico")
 
         # EXAMEN FÍSICO
+        paciente.edad = request.POST.get("edad")
         paciente.peso = request.POST.get("peso")
         paciente.altura = request.POST.get("altura")
         paciente.presion_arterial = request.POST.get("presion_arterial")
@@ -408,6 +410,7 @@ def obtener_paciente(request, id):
         "relato_clinico": paciente.relato_clinico,
 
         # EXAMEN FÍSICO
+        "edad": paciente.edad,
         "peso": paciente.peso,
         "altura": paciente.altura,
         "presion_arterial": paciente.presion_arterial,

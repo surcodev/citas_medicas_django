@@ -212,17 +212,17 @@
 
     <div>
         <div class="campo">DNI:</div>
-        <div class="valor">{{ paciente.dni }}</div>
+        <div class="valor">{{ paciente.dni|default_if_none:'' }}</div>
     </div>
 
     <div>
         <div class="campo">Teléfono:</div>
-        <div class="valor">{{ paciente.telefono }}</div>
+        <div class="valor">{{ paciente.telefono|default_if_none:'' }}</div>
     </div>
 
     <div>
         <div class="campo">Dirección:</div>
-        <div class="valor">{{ paciente.direccion }}</div>
+        <div class="valor">{{ paciente.direccion|default_if_none:'' }}</div>
     </div>
 </div>
 
@@ -268,7 +268,7 @@
 <!-- ================= RECOMENDACIONES ================= -->
 <div class="seccion">RECOMENDACIONES</div>
 <div class="bloque-texto">
-    {{ respuesta.notas }}
+    {{ respuesta.notas|default_if_none:''|linebreaksbr }}
 </div>
 
 {% endif %}
