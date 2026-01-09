@@ -232,6 +232,8 @@ def lista_citas(request):
 
     citas = Cita.objects.all().order_by('-fecha')
     pacientes = Paciente.objects.all()
+    # pacientes = Paciente.objects.all()[:10]
+
 
     return render(request, 'clinica/citas_medicas.html', {
         'citas': citas,
@@ -321,6 +323,7 @@ def editar_paciente(request):
 
         # Actualizar campos del Paciente
         paciente.nombre = request.POST.get("nombre")
+        paciente.fecha_nacimiento = request.POST.get("fecha_nacimiento")
         paciente.email = request.POST.get("email")
         paciente.dni = request.POST.get("dni")
         paciente.telefono = request.POST.get("telefono")

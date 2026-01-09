@@ -195,6 +195,7 @@
                                                 data-bs-target="#editarPacienteModal"
                                                 data-id="{{ p.id }}"
                                                 data-nombre="{{ p.nombre|default_if_none:'' }}"
+                                                data-fecha_nacimiento="{{ p.fecha_nacimiento|default_if_none:'' }}"
                                                 data-email="{{ p.email|default_if_none:'' }}"
                                                 data-dni="{{ p.dni|default_if_none:'' }}"
                                                 data-telefono="{{ p.telefono|default_if_none:'' }}"
@@ -343,6 +344,11 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Nombre</label>
                                     <input type="text" id="edit_nombre" name="nombre" class="form-control">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Fecha nacimiento</label>
+                                    <input type="date" id="edit_fecha_nacimiento" name="fecha_nacimiento" class="form-control">
                                 </div>
 
                                 <div class="col-md-4">
@@ -815,6 +821,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Primero carga los campos del formulario (data-attributes)
         document.getElementById("edit_id").value = id;
         document.getElementById("edit_nombre").value = button.getAttribute("data-nombre");
+        document.getElementById("edit_fecha_nacimiento").value = button.getAttribute("data-fecha_nacimiento");
         document.getElementById("edit_email").value = button.getAttribute("data-email");
         document.getElementById("edit_dni").value = button.getAttribute("data-dni");
         document.getElementById("edit_telefono").value = button.getAttribute("data-telefono");
