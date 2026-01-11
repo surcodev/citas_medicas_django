@@ -135,12 +135,22 @@ def atender_cita(request, cita_id):
     # ================================
     # NUEVO: Citas anteriores del paciente
     # ================================
+    # citas_anteriores = (
+    #     Cita.objects
+    #     .filter(paciente=paciente)
+    #     .exclude(id=cita.id)
+    #     .order_by('-fecha')   # más recientes primero
+    # )
     citas_anteriores = (
-        Cita.objects
-        .filter(paciente=paciente)
-        .exclude(id=cita.id)
-        .order_by('-fecha')   # más recientes primero
+    Cita.objects
+    .filter(
+        paciente=paciente,
+        fecha__isnull=False,
+        fecha__lt=cita.fecha
     )
+    .order_by('-fecha', '-hora')
+)
+
 
     if request.method == "POST":
         # --- GUARDAR RESPUESTA ---
@@ -148,6 +158,24 @@ def atender_cita(request, cita_id):
         respuesta.tratamiento = request.POST.get("tratamiento")
         respuesta.notas = request.POST.get("notas")
         respuesta.receta = request.POST.get("receta")
+
+        # EXAMEN FÍSICO
+        respuesta.peso = request.POST.get("peso")
+        respuesta.altura = request.POST.get("altura")
+        respuesta.presion_arterial = request.POST.get("presion_arterial")
+        respuesta.frecuencia_cardiaca = request.POST.get("frecuencia_cardiaca")
+        respuesta.frecuencia_respiratoria = request.POST.get("frecuencia_respiratoria")
+        respuesta.descripcion_examen_fisico = request.POST.get("descripcion_examen_fisico")
+
+        #ANAMNESIS
+        respuesta.alergias_conocidas = request.POST.get("alergias_conocidas")
+        respuesta.emfermedades_previas = request.POST.get("emfermedades_previas")
+        respuesta.antecentes_quirurgicos = request.POST.get("antecentes_quirurgicos")
+        respuesta.antecedentes_familiares = request.POST.get("antecedentes_familiares")
+        respuesta.medicamentos_actuales = request.POST.get("medicamentos_actuales")
+        respuesta.habitos = request.POST.get("habitos")
+        respuesta.relato_clinico = request.POST.get("relato_clinico")
+
         respuesta.save()
 
         # --- GUARDAR IMÁGENES ---
@@ -160,12 +188,6 @@ def atender_cita(request, cita_id):
 
         # --- GUARDAR DATOS DEL PACIENTE ---
         fields = [
-            "alergias_conocidas", "emfermedades_previas", "antecentes_quirurgicos",
-            "antecedentes_familiares", "medicamentos_actuales", "habitos",
-            "relato_clinico",
-            "edad", "peso", "altura", "presion_arterial", "frecuencia_cardiaca",
-            "frecuencia_respiratoria", "temperatura", "tipo_de_sangre",
-            "descripcion_examen_fisico",
             "nombre_contacto_emergencia1", "telefono_contacto_emergencia1",
             "relacion_contacto_emergencia1",
             "nombre_contacto_emergencia2", "telefono_contacto_emergencia2",

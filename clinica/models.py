@@ -111,6 +111,23 @@ class RespuestaCita(models.Model):
     notas = models.TextField(blank=True, null=True)
     receta = models.TextField(blank=True, null=True)
 
+    # ANAMNESIS
+    alergias_conocidas = models.CharField(max_length=255, blank=True, null=True)
+    emfermedades_previas = models.CharField(max_length=255, blank=True, null=True)
+    antecentes_quirurgicos = models.CharField(max_length=255, blank=True, null=True)
+    antecedentes_familiares = models.CharField(max_length=255, blank=True, null=True)
+    medicamentos_actuales = models.CharField(max_length=255, blank=True, null=True)
+    habitos = models.CharField(max_length=255, blank=True, null=True)
+    relato_clinico = models.TextField(blank=True, null=True)
+
+    # EXAMEN FISICO
+    peso = models.CharField(max_length=50, blank=True, null=True)
+    altura = models.CharField(max_length=50, blank=True, null=True)
+    presion_arterial = models.CharField(max_length=50, blank=True, null=True)
+    frecuencia_cardiaca = models.CharField(max_length=50, blank=True, null=True)
+    frecuencia_respiratoria = models.CharField(max_length=50, blank=True, null=True)
+    descripcion_examen_fisico = models.TextField(blank=True, null=True)
+
     # TIMESTAMPS
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

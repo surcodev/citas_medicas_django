@@ -189,11 +189,11 @@
 
     <!-- NAV -->
     <ul class="nav nav-tabs mb-3">
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anamnesis">Anamnesis</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anteriores">Citas anteriores</button></li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anamnesis">Anamnesis</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#examen">Examen físico</button></li>
         <li class="nav-item d-none"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactos">Contactos de emergencia</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#anteriores">Citas anteriores</button></li>
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#consulta">Diagnóstico</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#consulta">Diagnóstico</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#receta">Tratamiento</button></li>
     </ul>
 
@@ -202,8 +202,8 @@
         {{ form.media }}
         <div class="tab-content">
 
-            <!-- TAB CONSULTA -->
-            <div class="tab-pane fade show active" id="consulta">
+            <!-- TAB DIAGNOSTICO -->
+            <div class="tab-pane fade" id="consulta">
                 <div class="row">
 
                     <div class="">
@@ -252,89 +252,84 @@
             </div>
 
             <!-- TAB ANAMNESIS -->
-            <div class="tab-pane fade" id="anamnesis">
+            <div class="tab-pane fade show active" id="anamnesis">
                 <div class="row">
 
                     <div class="col-md-6">
                         <label class="form-label">Alergias</label>
-                        <input name="alergias_conocidas" class="form-control" value="{{ paciente.alergias_conocidas|default_if_none:'' }}">
+                        <input name="alergias_conocidas" class="form-control" value="{{ respuesta.alergias_conocidas|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Enfermedades previas</label>
-                        <input name="emfermedades_previas" class="form-control" value="{{ paciente.emfermedades_previas|default_if_none:'' }}">
+                        <input name="emfermedades_previas" class="form-control" value="{{ respuesta.emfermedades_previas|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-6 mt-2">
                         <label class="form-label">Antecedentes quirúrgicos</label>
-                        <input name="antecentes_quirurgicos" class="form-control" value="{{ paciente.antecentes_quirurgicos|default_if_none:'' }}">
+                        <input name="antecentes_quirurgicos" class="form-control" value="{{ respuesta.antecentes_quirurgicos|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-6 mt-2">
                         <label class="form-label">Antecedentes familiares</label>
-                        <input name="antecedentes_familiares" class="form-control" value="{{ paciente.antecedentes_familiares|default_if_none:'' }}">
+                        <input name="antecedentes_familiares" class="form-control" value="{{ respuesta.antecedentes_familiares|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-6 mt-2">
                         <label class="form-label">Medicamentos actuales</label>
-                        <input name="medicamentos_actuales" class="form-control" value="{{ paciente.medicamentos_actuales|default_if_none:'' }}">
+                        <input name="medicamentos_actuales" class="form-control" value="{{ respuesta.medicamentos_actuales|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-6 mt-2">
                         <label class="form-label">Hábitos</label>
-                        <input name="habitos" class="form-control" value="{{ paciente.habitos|default_if_none:'' }}">
+                        <input name="habitos" class="form-control" value="{{ respuesta.habitos|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-12 mt-2">
                         <label class="form-label">Relato clínico</label>
-                        <textarea name="relato_clinico" class="form-control" rows="4">{{ paciente.relato_clinico|default_if_none:'' }}</textarea>
+                        <textarea name="relato_clinico" class="form-control" rows="4">{{ respuesta.relato_clinico|default_if_none:'' }}</textarea>
                     </div>
 
                 </div>
             </div>
 
-            <!-- TAB EXAMEN -->
+            <!-- TAB EXAMEN FISICO -->
             <div class="tab-pane fade" id="examen">
                 <div class="row">
 
-                    <div class="col-md-4 d-none">
-                        <label>Edad</label>
-                        <input name="edad" class="form-control" value="{{ paciente.edad|default_if_none:'' }}">
-                    </div>
-
                     <div class="col-md-4">
                         <label>Peso</label>
-                        <input name="peso" class="form-control" value="{{ paciente.peso|default_if_none:'' }}">
+                        <input name="peso" class="form-control" value="{{ respuesta.peso|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-4">
                         <label>Altura</label>
-                        <input name="altura" class="form-control" value="{{ paciente.altura|default_if_none:'' }}">
+                        <input name="altura" class="form-control" value="{{ respuesta.altura|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-4">
                         <label>Temperatura</label>
-                        <input name="temperatura" class="form-control" value="{{ paciente.temperatura|default_if_none:'' }}">
+                        <input name="temperatura" class="form-control" value="{{ respuesta.temperatura|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-4 mt-2">
                         <label>Presión arterial</label>
-                        <input name="presion_arterial" class="form-control" value="{{ paciente.presion_arterial|default_if_none:'' }}">
+                        <input name="presion_arterial" class="form-control" value="{{ respuesta.presion_arterial|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-4 mt-2">
                         <label>Frecuencia cardíaca</label>
-                        <input name="frecuencia_cardiaca" class="form-control" value="{{ paciente.frecuencia_cardiaca|default_if_none:'' }}">
+                        <input name="frecuencia_cardiaca" class="form-control" value="{{ respuesta.frecuencia_cardiaca|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-4 mt-2">
                         <label>Frecuencia respiratoria</label>
-                        <input name="frecuencia_respiratoria" class="form-control" value="{{ paciente.frecuencia_respiratoria|default_if_none:'' }}">
+                        <input name="frecuencia_respiratoria" class="form-control" value="{{ respuesta.frecuencia_respiratoria|default_if_none:'' }}">
                     </div>
 
                     <div class="col-md-12 mt-2">
                         <label>Descripción examen físico</label>
-                        <textarea name="descripcion_examen_fisico" class="form-control">{{ paciente.descripcion_examen_fisico|default_if_none:'' }}</textarea>
+                        <textarea name="descripcion_examen_fisico" class="form-control">{{ respuesta.descripcion_examen_fisico|default_if_none:'' }}</textarea>
                     </div>
 
                 </div>
@@ -374,57 +369,202 @@
                                     <button class="accordion-button collapsed" type="button"
                                             data-bs-toggle="collapse"
                                             data-bs-target="#cita{{ c.id }}">
-                                        📅 {{ c.fecha }} — {{ c.motivo|default:"Sin motivo" }}
+                                        <i class="bi bi-calendar-check me-2"></i>  {{ c.fecha }} — {{ c.motivo|default:"Sin motivo" }}
                                     </button>
                                 </h2>
 
                                 <div id="cita{{ c.id }}" class="accordion-collapse collapse">
                                     <div class="accordion-body">
 
-                                        {% if c.respuesta %}
-                                            <div class="row">
+                {% if c.respuesta %}
+<div class="row g-4">
 
-                                                <div class="col-md-4">
-                                                    <label class="fw-bold">Diagnóstico</label>
-                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.diagnostico|default:"—" }}</div>
-                                                </div>
+    <!-- DIAGNÓSTICO / TRATAMIENTO / OBSERVACIONES -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white fw-bold">
+                Diagnóstico
+            </div>
+            <div class="card-body">
+                {{ c.respuesta.diagnostico|default:"—" }}
+            </div>
+        </div>
+    </div>
 
-                                                <div class="col-md-4">
-                                                    <label class="fw-bold">Tratamiento</label>
-                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.tratamiento|default:"—" }}</div>
-                                                </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white fw-bold">
+                Tratamiento
+            </div>
+            <div class="card-body">
+                {{ c.respuesta.tratamiento|default:"—" }}
+            </div>
+        </div>
+    </div>
 
-                                                <div class="col-md-4">
-                                                    <label class="fw-bold">Notas</label>
-                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.notas|default:"—" }}</div>
-                                                </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-secondary text-white fw-bold">
+                Observaciones
+            </div>
+            <div class="card-body">
+                {{ c.respuesta.notas|default:"Sin observaciones" }}
+            </div>
+        </div>
+    </div>
 
-                                                <div class="col-md-12 mt-3">
-                                                    <label class="fw-bold">Receta</label>
-                                                    <div class="p-2 border rounded bg-light">{{ c.respuesta.receta|default:"—" }}</div>
-                                                </div>
+    <!-- ANAMNESIS -->
+<div class="col-md-12">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white fw-bold">
+            🩺 Anamnesis
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
 
-                                                <div class="col-md-12 mt-3">
-                                                    <label class="fw-bold">Imágenes</label>
-                                                    <div class="row">
-                                                        {% for img in c.respuesta.imagenes.all %}
-                                                            <div class="col-3 mb-3">
-                                                                <img src="{{ img.imagen.url }}"
-                                                                    class="img-fluid rounded border"
-                                                                    style="cursor: pointer;"
-                                                                    onclick="window.open('{{ img.imagen.url }}', '_blank')">
-                                                            </div>
-                                                        {% empty %}
-                                                            <p class="text-muted">Sin imágenes.</p>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Alergias</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.alergias_conocidas|default:"—" }}
+                    </div>
+                </div>
 
-                                            </div>
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Enfermedades previas</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.emfermedades_previas|default:"—" }}
+                    </div>
+                </div>
 
-                                        {% else %}
-                                            <p class="text-muted">No hubo respuesta para esta cita.</p>
-                                        {% endif %}
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Antecedentes quirúrgicos</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.antecentes_quirurgicos|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Antecedentes familiares</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.antecedentes_familiares|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Medicamentos actuales</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.medicamentos_actuales|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <small class="text-muted fw-bold">Hábitos</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.habitos|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <small class="text-muted fw-bold">Relato clínico</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.relato_clinico|default:"—" }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- EXAMEN FÍSICO -->
+<div class="col-md-12">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning fw-bold">
+            🧍‍♂️ Examen Físico
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <small class="text-muted fw-bold">Peso</small>
+                    <div class="border rounded p-2 bg-light text-center">
+                        {{ c.respuesta.peso|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted fw-bold">Altura</small>
+                    <div class="border rounded p-2 bg-light text-center">
+                        {{ c.respuesta.altura|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted fw-bold">Presión arterial</small>
+                    <div class="border rounded p-2 bg-light text-center">
+                        {{ c.respuesta.presion_arterial|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted fw-bold">Frecuencia cardíaca</small>
+                    <div class="border rounded p-2 bg-light text-center">
+                        {{ c.respuesta.frecuencia_cardiaca|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted fw-bold">Frecuencia respiratoria</small>
+                    <div class="border rounded p-2 bg-light text-center">
+                        {{ c.respuesta.frecuencia_respiratoria|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <small class="text-muted fw-bold">Descripción</small>
+                    <div class="border rounded p-2 bg-light">
+                        {{ c.respuesta.descripcion_examen_fisico|default:"—" }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- IMÁGENES -->
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold">
+                🖼 Imágenes
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for img in c.respuesta.imagenes.all %}
+                        <div class="col-6 col-md-3 mb-3">
+                            <img src="{{ img.imagen.url }}"
+                                 class="img-fluid rounded shadow-sm border"
+                                 style="cursor:pointer"
+                                 onclick="window.open('{{ img.imagen.url }}','_blank')">
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">Sin imágenes.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% else %}
+<div class="alert alert-secondary text-center">
+    No hubo respuesta para esta cita.
+</div>
+{% endif %}
+
+
 
                                     </div>
                                 </div>
@@ -440,7 +580,7 @@
             </div>
 
 
-            <!-- TAB RECETA -->
+            <!-- TAB TRATAMIENTO -->
             <div class="tab-pane fade" id="receta" style="margin-top: 20px !important;">
                 <label class="form-label d-none">Receta médica</label>
                 <textarea name="receta" class="form-control d-none" rows="6">{{ respuesta.receta|default_if_none:'' }}</textarea>
@@ -448,7 +588,7 @@
                 <label class="form-label">Tratamiento</label>
                 <textarea name="tratamiento" class="form-control" rows="6">{{ respuesta.tratamiento|default_if_none:'' }}</textarea>
 
-                <label class="form-label">Notas</label>
+                <label class="form-label">Recomendaciones</label>
                 <textarea name="notas" class="form-control" rows="6">{{ respuesta.notas|default_if_none:'' }}</textarea>
             </div>
         </div>
