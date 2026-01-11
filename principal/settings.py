@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'citas',
         'USER': 'noroot',
         'PASSWORD': 'mysql123$!A',
-        'HOST': '157.173.105.12',
+        'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -89,6 +89,20 @@ DATABASES = {
     }
 }
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'citas',
+#         'USER': 'noroot',
+#         'PASSWORD': 'mysql123$!A',
+#         'HOST': '157.173.105.12',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
