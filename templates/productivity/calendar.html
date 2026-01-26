@@ -111,27 +111,57 @@
 
 
 <script>
+// document.addEventListener('DOMContentLoaded', function() {
+//     const calendarEl = document.getElementById('calendar');
+//     let currentUser = '';
+
+//     const calendar = new FullCalendar.Calendar(calendarEl, {
+//         locale: 'es',  // <<< Calendario en español
+//         initialView: 'dayGridMonth',
+//         height: 'auto',  // <<< Elimina espacio inferior
+//         contentHeight: 'auto',
+//         expandRows: true, // <<< Evita espacios raros verticales
+
+//         dayMaxEventRows: true,
+
+
+//         events: function(fetchInfo, successCallback, failureCallback) {
+//             let url = '/productivity/api/events/';
+//             if (currentUser) {
+//                 url += `?user_id=${currentUser}`;
+//             }
+
+//             fetch(url)
+//                 .then(response => response.json())
+//                 .then(data => successCallback(data))
+//                 .catch(error => failureCallback(error));
+//         }
+//     });
+
+//     calendar.render();
+
+//     const userSelect = document.getElementById('user-select');
+//     if (userSelect) {
+//         userSelect.addEventListener('change', function(e) {
+//             currentUser = e.target.value;
+//             calendar.refetchEvents();
+//         });
+//     }
+// });
+
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
-    let currentUser = '';
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'es',  // <<< Calendario en español
+        locale: 'es',
         initialView: 'dayGridMonth',
-        height: 'auto',  // <<< Elimina espacio inferior
+        height: 'auto',
         contentHeight: 'auto',
-        expandRows: true, // <<< Evita espacios raros verticales
-
+        expandRows: true,
         dayMaxEventRows: true,
 
-
         events: function(fetchInfo, successCallback, failureCallback) {
-            let url = '/productivity/api/events/';
-            if (currentUser) {
-                url += `?user_id=${currentUser}`;
-            }
-
-            fetch(url)
+            fetch('/productivity/api/events/')
                 .then(response => response.json())
                 .then(data => successCallback(data))
                 .catch(error => failureCallback(error));
@@ -139,15 +169,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     calendar.render();
-
-    const userSelect = document.getElementById('user-select');
-    if (userSelect) {
-        userSelect.addEventListener('change', function(e) {
-            currentUser = e.target.value;
-            calendar.refetchEvents();
-        });
-    }
 });
+
 </script>
 
 {% endblock %}
