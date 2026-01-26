@@ -124,45 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dayMaxEventRows: true,
 
-//         dateClick: function(info) {
-//     fetch(`/productivity/activity/form-ajax/?date=${info.dateStr}`, {
-//         headers: {
-//             "X-Requested-With": "XMLHttpRequest"
-//         }
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         document.getElementById("modal-body-content").innerHTML = data.html;
-
-//         const modal = new bootstrap.Modal(document.getElementById("activityModal"));
-//         modal.show();
-
-//         // Guardar el formulario
-//         const form = document.getElementById("activityForm");
-//         form.addEventListener("submit", function(e){
-//             e.preventDefault();
-
-//             const formData = new FormData(form);
-
-//             fetch(`/productivity/activity/add/?date=${info.dateStr}`, {
-//                 method: "POST",
-//                 body: formData,
-//                 headers: {
-//                     "X-Requested-With": "XMLHttpRequest"
-//                 }
-//             })
-//             .then(res => res.json())
-//             .then(response => {
-//                 if (response.success) {
-//                     modal.hide();
-//                     calendar.refetchEvents();
-//                 } else {
-//                     alert("Corrige los errores del formulario");
-//                 }
-//             });
-//         });
-//     });
-// },
 
         events: function(fetchInfo, successCallback, failureCallback) {
             let url = '/productivity/api/events/';

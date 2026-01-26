@@ -49,19 +49,45 @@ class CalendarView(LoginRequiredMixin, View):
 
 
 
+# @login_required
+# def events_api(request):
+#     """Retorna eventos para FullCalendar. Si el usuario es admin, puede pasar ?user_id= para ver otro usuario."""
+#     from django.contrib.auth import get_user_model
+
+#     user = request.user
+#     user_id = request.GET.get('user_id')
+
+#     # Si viene user_id y el usuario es staff/admin → ver actividades de otro usuario
+#     if user_id and (request.user.is_staff or getattr(request.user, 'is_admin', False) or request.user.is_superuser):
+#         user = get_user_model().objects.filter(id=user_id).first() or user
+
+#     qs = DailyActivity.objects.filter(user=user)
+
+#     events = []
+#     for a in qs:
+#         if a.score == 1:
+#             color = 'red'
+#         elif a.score == 2:
+#             color = 'orange'
+#         elif a.score == 3:
+#             color = 'green'
+#         else:
+#             color = "#3A7175"
+
+#         events.append({
+#             'id': a.id,
+#             'title': a.title,
+#             'start': a.date.isoformat(),
+#             'allDay': True,
+#             'color': color,
+#         })
+
+#     return JsonResponse(events, safe=False)
+
+
 @login_required
 def events_api(request):
-    """Retorna eventos para FullCalendar. Si el usuario es admin, puede pasar ?user_id= para ver otro usuario."""
-    from django.contrib.auth import get_user_model
-
-    user = request.user
-    user_id = request.GET.get('user_id')
-
-    # Si viene user_id y el usuario es staff/admin → ver actividades de otro usuario
-    if user_id and (request.user.is_staff or getattr(request.user, 'is_admin', False) or request.user.is_superuser):
-        user = get_user_model().objects.filter(id=user_id).first() or user
-
-    qs = DailyActivity.objects.filter(user=user)
+    qs = DailyActivity.objects.all()
 
     events = []
     for a in qs:
