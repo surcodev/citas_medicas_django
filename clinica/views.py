@@ -273,55 +273,63 @@ def construir_titulo_cita(fecha, hora, paciente_nombre):
     )
 
 
+@login_required
 def editar_cita(request):
-    if request.method == "POST":
-        cita_id = request.POST.get("id")
-        cita = get_object_or_404(Cita, id=cita_id)
-
-        # ================= DATOS ANTERIORES =================
-        fecha_old = cita.fecha
-        hora_old = cita.hora
-        paciente_old = cita.paciente.nombre
-
-        titulo_old = construir_titulo_cita(fecha_old, hora_old, paciente_old)
-
-        # ================= NUEVOS DATOS =================
-        fecha_new = datetime.strptime(request.POST.get("fecha"), "%Y-%m-%d").date()
-        hora_new = datetime.strptime(request.POST.get("hora"), "%H:%M").time()
-
-        cita.paciente_id = request.POST.get("paciente")
-        cita.fecha = fecha_new
-        cita.hora = hora_new
-        cita.motivo = request.POST.get("motivo")
-        cita.estado = request.POST.get("estado") == "True"
-        cita.save()
-
-        titulo_new = construir_titulo_cita(
-            fecha_new,
-            hora_new,
-            cita.paciente.nombre
-        )
-
-        # ================= ACTUALIZAR DailyActivity =================
-        actividad = DailyActivity.objects.filter(
-            user=request.user,
-            date=fecha_old,
-            title=titulo_old
-        ).first()
-
-        if actividad:
-            actividad.date = fecha_new
-            actividad.title = titulo_new
-            actividad.description = cita.motivo
-            actividad.save()
-
-        messages.success(request, "La cita fue actualizada correctamente.")
+    if request.method != "POST":
+        messages.error(request, "Método inválido.")
         return redirect("clinica:lista_citas")
 
-    messages.error(request, "Método inválido.")
+    cita_id = request.POST.get("id")
+    cita = get_object_or_404(Cita, id=cita_id)
+
+    # ================= DATOS ANTERIORES =================
+    fecha_old = cita.fecha
+    hora_old = cita.hora
+    paciente_old = cita.paciente.nombre
+
+    titulo_old = construir_titulo_cita(
+        fecha_old,
+        hora_old,
+        paciente_old
+    )
+
+    # ================= NUEVOS DATOS =================
+    fecha_new = datetime.strptime(
+        request.POST.get("fecha"), "%Y-%m-%d"
+    ).date()
+
+    hora_new = datetime.strptime(
+        request.POST.get("hora"), "%H:%M"
+    ).time()
+
+    cita.paciente_id = request.POST.get("paciente")
+    cita.fecha = fecha_new
+    cita.hora = hora_new
+    cita.motivo = request.POST.get("motivo")
+    cita.estado = request.POST.get("estado") == "True"
+    cita.save()
+
+    titulo_new = construir_titulo_cita(
+        fecha_new,
+        hora_new,
+        cita.paciente.nombre
+    )
+
+    # ================= DAILY ACTIVITY =================
+    # Actualiza si existe, crea si NO existe
+    DailyActivity.objects.update_or_create(
+        user=request.user,
+        date=fecha_old,
+        title=titulo_old,
+        defaults={
+            "date": fecha_new,
+            "title": titulo_new,
+            "description": cita.motivo,
+        }
+    )
+
+    messages.success(request, "La cita fue actualizada correctamente.")
     return redirect("clinica:lista_citas")
-
-
 
 def eliminar_cita(request, doc_id):
     cita = get_object_or_404(Cita, id=doc_id)
